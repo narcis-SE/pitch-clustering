@@ -19,7 +19,7 @@ def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: st
     return data
 
 def main():
-    data = get_pitcher_data('shohei', 'ohtani', '2024-01-01', '2024-12-31')
+    data = get_pitcher_data('shohei', 'ohtani', '2018-01-01', '2023-12-31')
     print(data.head())
     print(data.columns.tolist())
     response = requests.get("https://httpbin.org/get")
