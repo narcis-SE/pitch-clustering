@@ -19,12 +19,18 @@ def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: st
     return data
 
 def main():
-    data = get_pitcher_data('shohei', 'ohtani', '2018-01-01', '2023-12-31')
+    #some pitchers with longer careers that took place at least partially within the statcast era. We could show 10 year evolutions for each of these potentially?
+    pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw']
+
+    #one example with kershaw using code that was here before
+    data = get_pitcher_data('clayton', 'kershaw', '2015-01-01', '2023-12-31')
+    keepCols = ["pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
+    data = data.filter(keepCols).dropna()
     print(data.head())
-    print(data.columns.tolist())
-    response = requests.get("https://httpbin.org/get")
-    print(response.status_code)
-    print(response.json())
+    print(data.shape[0])
+    # response = requests.get("https://httpbin.org/get")
+    # print(response.status_code)
+    # print(response.json())
 
 
 if __name__ == "__main__":
