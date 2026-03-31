@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture as GMM
 from pybaseball import statcast, statcast_pitcher, playerid_lookup, pitching_stats
+import time
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -19,15 +20,25 @@ def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: st
     return data
 
 def main():
-    # we could show 3, 5, 10 year evolutions where possible?
-    long_pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'garrett crochet', 'mason miller']
 
-    #one example with kershaw using code that was here before
-    data = get_pitcher_data('clayton', 'kershaw', '2015-01-01', '2023-12-31')
-    keepCols = ["game_date", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
-    data = data.filter(keepCols).dropna()
-    print(data.head())
-    print(data.shape[0])
+    ############# code to retrieve and write data to csv for use in the visualization app since we don't want to have to fetch it each time. commenting this out but leaving it here in case we want to add more #############
+
+    # we could show 3, 5, 10 year evolutions where possible?
+    # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'garrett crochet', 'mason miller']
+    # keepCols = ["game_date", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
+
+    # tempData = []
+    # for pitcherName in pitchers:
+    #     print(f'working on pitcher {pitcherName}')
+    #     fullName = pitcherName.split(' ')
+    #     temp = get_pitcher_data(fullName[0], fullName[1], '2015-01-01', '2025-12-31').filter(keepCols).dropna()
+    #     tempData.append(temp)
+
+    # data = pd.concat(tempData, ignore_index = True)
+    # data.to_csv('pitcher_data.csv', index = False)
+    # print(data.head())
+    # print(data.shape[0])
+
     # response = requests.get("https://httpbin.org/get")
     # print(response.status_code)
     # print(response.json())
