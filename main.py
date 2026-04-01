@@ -73,7 +73,7 @@ def main():
             color='pitch_name',
             barmode='overlay',
             opacity=0.7,
-            title=f'{feature}',
+            title=f'{feature} of {selectPitcher} in {selectYear}',
         )
         cols[i%2].plotly_chart(hist)
 
