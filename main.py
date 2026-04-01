@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture as GMM
 from pybaseball import statcast, statcast_pitcher, playerid_lookup, pitching_stats
-import time
+import streamlit as st
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -25,7 +25,7 @@ def main():
 
     # we could show 3, 5, 10 year evolutions where possible?
     # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'garrett crochet', 'mason miller']
-    # keepCols = ["game_date", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
+    # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
 
     # tempData = []
     # for pitcherName in pitchers:
@@ -43,7 +43,13 @@ def main():
     # print(response.status_code)
     # print(response.json())
 
-    pass
+    # pass
+
+    @st.cache_data
+    def getData():
+        return pd.read_csv('pitcher_data.csv', header = True, parse_dates = ['game_date'])
+    
+    appData = getData()
 
 if __name__ == "__main__":
     main()
