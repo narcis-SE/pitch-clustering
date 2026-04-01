@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.mixture import GaussianMixture as GMM
 from pybaseball import statcast, statcast_pitcher, playerid_lookup, pitching_stats
 import streamlit as st
+import plotly.express as px
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -47,9 +48,18 @@ def main():
 
     @st.cache_data
     def getData():
-        return pd.read_csv('pitcher_data.csv', header = True, parse_dates = ['game_date'])
+        return pd.read_csv('pitcher_data.csv', parse_dates = ['game_date'])
     
     appData = getData()
+    st.title('MLB Pitch Clustering')
+    selectPitcher = st.selectbox('Select Pitcher', sorted(appData['player_name'].unique()), index = 4)
+    selectYear = st.slider('Select Year', min_value = appData['game_date'].dt.year.min(), max_value = appData['game_date'].dt.year.max())
+
+    dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
+
+    st.subheader('Basic Scatter Plot Test')
+    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
+    st.plotly_chart(basicPlot, width = 'stretch')
 
 if __name__ == "__main__":
     main()
