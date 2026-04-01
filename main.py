@@ -5,6 +5,7 @@ from sklearn.mixture import GaussianMixture as GMM
 from pybaseball import statcast, statcast_pitcher, playerid_lookup, pitching_stats
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -60,6 +61,21 @@ def main():
     st.subheader('Basic Scatter Plot Test')
     basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
     st.plotly_chart(basicPlot, width = 'stretch')
+
+    st.subheader('Feature Distributions by Pitch Type')
+    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'spin_axis']
+    col1, col2 = st.columns(2)
+    cols = [col1, col2]
+    for i, feature in enumerate(features):
+        hist = px.histogram(
+            dfFilter,
+            x=feature,
+            color='pitch_name',
+            barmode='overlay',
+            opacity=0.7,
+            title=f'{feature}',
+        )
+        cols[i%2].plotly_chart(hist)
 
 if __name__ == "__main__":
     main()
