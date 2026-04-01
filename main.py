@@ -13,7 +13,7 @@ def get_player_id(first_name: str, last_name: str) -> int:
     else:
         raise ValueError(f'Player {first_name} {last_name} not found.')
     
-def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: str) -> 'pd.DataFrame':
+def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: str) -> pd.DataFrame:
     '''Get the statcast data for a given pitcher and date range. Returns a Dataframe with statcast data.'''
     player_id = get_player_id(first_name, last_name)
     data = statcast_pitcher(start_dt, end_dt, player_id)
@@ -43,6 +43,7 @@ def main():
     # print(response.status_code)
     # print(response.json())
 
+    pass
 
 if __name__ == "__main__":
     main()
