@@ -111,7 +111,7 @@ def main():
     st.subheader('Basic Scatter Plot Test')
     basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
     st.plotly_chart(basicPlot, width = 'stretch')
-    
+
     st.divider()
 
     st.subheader('Feature Distributions by Pitch Type')
@@ -131,7 +131,7 @@ def main():
 
     st.divider()
     st.header("Pitcher Similarity")
-    st.info("This section uses the K-nearest neighbors algorithm to find which pitcher-year most closely matches the selected pitcher's pitch mechanics. " \
+    st.info("This section uses the K-nearest neighbors algorithm to find which pitcher-year most closely resembles the selected pitcher's pitch mechanics. " \
     "The similarity score is based on the distance in PCA space, with a higher score indicating a closer match. " \
     "Note that this is based on average pitch characteristics for the season, so it may not capture in-season changes or specific pitch types. " \
     "Results may also include different seasons of the selected pitcher, since their own career trajectory can be the closest physical match.")
