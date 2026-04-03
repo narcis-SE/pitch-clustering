@@ -44,7 +44,7 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
 
     pca_full = PCA(n_components=5)
     pca_full.fit(scaled_data)
-    print(pca_full.explained_variance_ratio_)
+    # print(pca_full.explained_variance_ratio_)
 
     pitcher_match = pitchers[
         (pitchers['player_name'] == target_pitcher) & (pitchers['year'] == int(target_year))
