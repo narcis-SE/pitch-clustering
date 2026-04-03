@@ -129,7 +129,7 @@ def main():
 
     st.divider()
     st.header("Pitcher Similarity")
-    st.info("This section uses PCA to find which pitcher-year most closely matches the selected pitcher's pitch mechanics. " \
+    st.info("This section uses the K-nearest neighbors algorithm to find which pitcher-year most closely matches the selected pitcher's pitch mechanics. " \
     "The similarity score is based on the distance in PCA space, with a higher score indicating a closer match. " \
     "Note that this is based on average pitch characteristics for the season, so it may not capture in-season changes or specific pitch types. " \
     "Results may also include different seasons of the selected pitcher, since their own career trajectory can be the closest physical match.")
