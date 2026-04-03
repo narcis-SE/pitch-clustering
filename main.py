@@ -111,6 +111,8 @@ def main():
     st.subheader('Basic Scatter Plot Test')
     basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
     st.plotly_chart(basicPlot, width = 'stretch')
+    
+    st.divider()
 
     st.subheader('Feature Distributions by Pitch Type')
     features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'spin_axis']
