@@ -139,7 +139,6 @@ def main():
     sim_results = find_similar_pitchers(appData, selectPitcher, selectYear)
 
     if sim_results is not None:
-        # Display results in cards
         cols = st.columns(3)
         for i, (_, row) in enumerate(sim_results.iterrows()):
             if i >= 3:
