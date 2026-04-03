@@ -63,9 +63,10 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     res['sim_score'] = 1/(1 + dist[0])
 
     final = res[~(
-    (res['player_name'] == target_pitcher) &
-    (res['year'] == int(target_year))
-)]
+        (res['player_name'] == target_pitcher) &
+        (res['year'] == int(target_year))
+    )]
+
     final = final.drop_duplicates(subset='player_name', keep='first').head(3).reset_index(drop=True)
 
     return final 
