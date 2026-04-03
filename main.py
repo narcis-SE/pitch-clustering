@@ -6,6 +6,9 @@ from pybaseball import statcast, statcast_pitcher, playerid_lookup, pitching_sta
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -20,6 +23,23 @@ def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: st
     player_id = get_player_id(first_name, last_name)
     data = statcast_pitcher(start_dt, end_dt, player_id)
     return data
+
+def find_similar_pitchers(data, target_pitcher, target_year, n_neighbors=3):
+    ''''Find similar pitchers based on pitch features.'''
+
+    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'release_extension']
+    pitchers = data.groupby(['player_name'], data['game_date'].dt.year)[features].mean().reset_index()
+    pitchers.column = ['player_name', 'year'] + features
+    pitchers['year'] = pitchers['year'].astype(int)
+    pitchers = pitchers.dropna().reset_index(drop=True)
+
+    if pitchers.empty: return None
+
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(pitchers[features])
+
+    
+
 
 def main():
 
