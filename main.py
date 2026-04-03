@@ -42,7 +42,7 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     pca = PCA(n_components=n_components)
     pca_data = pca.fit_transform(scaled_data)
 
-    pca_full = PCA(n_components=5)
+    pca_full = PCA(n_components=len(features))
     pca_full.fit(scaled_data)
     # print(pca_full.explained_variance_ratio_)
 
