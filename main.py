@@ -75,8 +75,7 @@ def main():
 
     ############# code to retrieve and write data to csv for use in the visualization app since we don't want to have to fetch it each time. commenting this out but leaving it here in case we want to add more #############
 
-    # we could show 3, 5, 10 year evolutions where possible?
-    # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'garrett crochet', 'mason miller']
+    # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'lance lynn', 'sonny gray', 'aroldis chapman']
     # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
     # pitchers = [
     #             "Logan Gilbert", "Seth Lugo", "Logan Webb", "Zack Wheeler", "Aaron Nola",
@@ -111,12 +110,6 @@ def main():
     # data.to_csv('pitcher_data_detailed.csv', index = False)
     # print(data.head())
     # print(data.shape[0])
-
-    # response = requests.get("https://httpbin.org/get")
-    # print(response.status_code)
-    # print(response.json())
-
-    # pass
 
     @st.cache_data
     def getData():
