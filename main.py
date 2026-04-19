@@ -112,10 +112,14 @@ def main():
     # print(data.shape[0])
 
     @st.cache_data
-    def getData():
+    def getPitcherData():
         return pd.read_csv('pitcher_data.csv', parse_dates = ['game_date'])
     
-    appData = getData()    
+    @st.cache_data
+    def getRFPred():
+        return pd.read_csv('random_forest_predictions.csv', parse_dates = ['period'])
+
+    appData = getPitcherData()
     st.title('MLB Pitch Clustering')
     selectPitcher = st.selectbox('Select Pitcher', sorted(appData['player_name'].unique()), index = 4)
     selectYear = st.slider('Select Year', min_value = appData['game_date'].dt.year.min(), max_value = appData['game_date'].dt.year.max())
@@ -126,6 +130,18 @@ def main():
     basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
     st.plotly_chart(basicPlot, width = 'stretch')
 
+    st.divider()
+
+    st.subheader("Random Forest Experiment")
+    predResults = getRFPred()
+    if selectYear >= 2022:
+        rfFilter = predResults.loc[(predResults['player_name'] == selectPitcher) & (predResults['period'] >= f'{selectYear}-01-01'), :]
+        rfPlot = px.scatter(rfFilter, x = 'period', y = 'residual', labels = {'period': 'Date', 'residual': 'Random Forest Residual'}, title = f'{selectPitcher} Random Forest Residuals for the Period {selectYear} through 2025')
+        rfPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
+        st.plotly_chart(rfPlot, width = 'stretch')
+    else:
+        st.warning('Test set prediction results only available for August 2022 and on.')
+    
     st.divider()
 
     st.subheader('Feature Distributions by Pitch Type')
@@ -166,6 +182,7 @@ def main():
                 st.caption(f"Spin: {int(row['release_spin_rate'])} rpm")
     else:
         st.warning("Select a different year or pitcher to generate similarity matches.")
+
 
 if __name__ == "__main__":
     main()
