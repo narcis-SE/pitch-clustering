@@ -71,6 +71,144 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
 
     return final 
 
+def display_knn_experiment(app_data):
+    st.header('How Consistent Do Pitchers Pitch Over Time?')
+    st.markdown("""
+    This experiment tests whether we can distinguish pitch types based on physical metrics. 
+    A high weighted F1 score indicates that a pitcher's range of pitches are physically discernible and longitudinally consistent and reliable.
+    """)
+
+    @st.cache_data
+    def getKNNResults():
+        return pd.read_csv('knn_results.csv')
+    
+    @st.cache_data
+    def getKNNFolds():
+        return pd.read_csv('knn_folds.csv')
+    
+    knn_results = getKNNResults()
+    knn_folds = getKNNFolds()
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Avg. Weighted F1", f"{knn_results['weighted_f1'].mean():.3f}")
+    col2.metric("Top Performer", knn_results.iloc[0]['pitcher'], f"{knn_results.iloc[0]['weighted_f1']:.3f}")
+    col3.metric("Total Pitchers Analyzed", len(knn_results))
+
+    st.divider()
+
+    st.subheader('Pitcher Deep Dive')
+    selected_pitcher = st.selectbox(
+        'Select a Pitcher for Detailed Validation',
+        sorted(app_data['player_name'].unique())
+    )
+
+    pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
+
+    if pitcher_data.empty:
+        st.warning("No KNN results available for this pitcher.")
+    else:
+        pitcher_data = pitcher_data.iloc[0]
+
+        def f1_scores(score):
+            if score >= 0.9:
+                return 'Highly consistent pitches'
+            
+            elif score >= 0.75:
+                return 'Moderately consistent pitches'
+            
+            elif score >= 0.5:
+                return 'Somewhat consistent pitches'
+            
+            else: 
+                return 'Inconsistent pitches'
+        
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.write("**Model Parameters**")
+            st.write(f"**Best $k$:** {pitcher_data['best_k']}")
+            st.write(f"**Distance Metric:** {pitcher_data['best_metric'].capitalize()}")
+            st.write(f"**Pitch Types:** {pitcher_data['pitch_types'].replace(',', ', ')}")
+            st.write(f"**Data Span:** {pitcher_data['n_years']} Years")
+            st.write(f"**Total Pitches:** {pitcher_data['n_pitches']:,}")
+        with c2:
+            st.metric("Weighted F1 Score", f"{pitcher_data['weighted_f1']:.3f}")
+            st.info(f1_scores(pitcher_data['weighted_f1']))
+        with c3:
+            rank = knn_results['weighted_f1'].rank(ascending=False).loc[knn_results['pitcher'] == selected_pitcher].iloc[0]
+            st.metric("Leaderboard Rank", f"{int(rank)} / {len(knn_results)}")
+            n_pitch_types = len(pitcher_data['pitch_types'].split(','))
+            st.metric("# Pitch Types", n_pitch_types)
+
+        st.divider()
+        pitcher_folds = knn_folds[knn_folds['pitcher'] == selected_pitcher]
+
+        if pitcher_folds.empty or (
+            len(pitcher_folds) == 1 and
+            str(pitcher_folds['test_year'].iloc[0]) == 'holdout'
+        ):
+            st.info("Insufficient years of data to show classification trend for this pitcher.")
+        else:
+            fold_fig = px.line(
+                pitcher_folds,
+                x='test_year',
+                y='weighted_f1',
+                markers=True,
+                title=f'Classification Stability Over Time: {selected_pitcher}',
+                labels={'test_year': 'Test Year', 'weighted_f1': 'Weighted F1 Score'},
+                range_y=[0, 1]
+            )
+            fold_fig.add_hline(
+                y=0.8,
+                line_dash='dash',
+                line_color='red',
+                annotation_text='0.8 threshold'
+            )
+            fold_fig.update_layout(title_x=0.5, title_xanchor='center')
+            st.plotly_chart(fold_fig, use_container_width=True)
+            st.caption(
+                "Each point shows how well the model classified pitch types in that year, "
+                "trained on all prior years. A declining trend may indicate meaningful "
+                "changes in the pitcher's mechanics over time."
+            )
+
+    st.divider()
+    st.subheader("Reliability Leaderboard Among Selected Pitchers")
+
+    fig_bar = px.bar(
+        knn_results.sort_values('weighted_f1'),
+        x='weighted_f1',
+        y='pitcher',
+        orientation='h',
+        color='weighted_f1',
+        color_continuous_scale='RdYlGn',
+        range_color=[0.3, 1.0],
+        hover_data=['pitch_types', 'best_k', 'best_metric', 'n_pitches', 'n_years'],
+        labels={
+            'weighted_f1': 'Weighted F1 Score',
+            'pitcher': 'Pitcher',
+            'pitch_types': 'Pitch Types',
+            'best_k': 'Best k',
+            'best_metric': 'Metric',
+            'n_pitches': '# Pitches',
+            'n_years': 'Years of Data'
+        },
+        title='Pitch Classification Reliability by Pitcher',
+        height=900
+    )
+    fig_bar.add_vline(
+        x=0.8,
+        line_dash='dash',
+        line_color='black',
+        annotation_text='0.8 threshold'
+    )
+    fig_bar.update_layout(title_x=0.5, title_xanchor='center')
+    st.plotly_chart(fig_bar, use_container_width=True)
+    st.caption(
+        "Pitchers with higher F1 scores have more physically consistent and distinguishable pitch types. "
+        "Lower scores may reflect pitch type changes over time or overlapping pitch characteristics. "
+    )
+
+
 def main():
 
     ############# code to retrieve and write data to csv for use in the visualization app since we don't want to have to fetch it each time. commenting this out but leaving it here in case we want to add more #############
@@ -118,6 +256,14 @@ def main():
     @st.cache_data
     def getRFPred():
         return pd.read_csv('random_forest_predictions.csv', parse_dates = ['period'])
+    
+    @st.cache_data
+    def getKNNResults():
+        return pd.read_csv('knn_results.csv')
+    
+    @st.cache_data
+    def getKNNFolds():
+        return pd.read_csv('knn_folds.csv')
 
     appData = getPitcherData()
     st.title('MLB Pitch Clustering')
@@ -143,7 +289,6 @@ def main():
         st.warning('Test set prediction results only available for August 2022 and on.')
     
     st.divider()
-
     st.subheader('Feature Distributions by Pitch Type')
     features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'spin_axis']
     col1, col2 = st.columns(2)
@@ -183,6 +328,8 @@ def main():
     else:
         st.warning("Select a different year or pitcher to generate similarity matches.")
 
+    st.divider()
+    display_knn_experiment(appData)
 
 if __name__ == "__main__":
     main()
