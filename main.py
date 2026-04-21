@@ -266,7 +266,7 @@ def main():
     dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
 
     st.subheader('EDA Visuals')
-    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
+    basicPlot = px.scatter(dfFilter, x = 'release_pos_x', y = 'release_pos_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'release_pos_x': 'Horizontal Release (in)', 'release_pos_z': 'Vertical Release (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
     basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
     st.plotly_chart(basicPlot, width = 'stretch')
     
