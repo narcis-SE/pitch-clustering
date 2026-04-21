@@ -265,14 +265,14 @@ def main():
 
     dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
 
-    # st.subheader('EDA Visuals')
-    # basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
-    # basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
-    # st.plotly_chart(basicPlot, width = 'stretch')
+    st.subheader('EDA Visuals')
+    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
+    basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
+    st.plotly_chart(basicPlot, width = 'stretch')
     
-    # st.divider()
+    st.divider()
 
-    # st.subheader('Feature Distributions by Pitch Type')
+    st.subheader('Feature Distributions by Pitch Type')
     features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z']
     titleFeatures = ['Release Speed', 'Spin Rate', 'Horizontal Release', 'Vertical Release']
     col1, col2 = st.columns(2)
