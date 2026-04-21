@@ -72,7 +72,7 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     return final 
 
 def display_knn_experiment(pitcher):
-    st.header('How Consistent Do Pitchers Pitch Over Time?')
+    st.header('How Consistent Do Pitchers Pitch Over Time?', text_alignment = 'center')
     st.info("""
     This experiment tests whether we can distinguish pitch types based on physical metrics. 
     A high weighted F1 score indicates that a pitcher's range of pitches are physically discernible and longitudinally consistent and reliable.
@@ -169,7 +169,7 @@ def display_knn_experiment(pitcher):
             )
 
     st.divider()
-    st.subheader("Reliability Leaderboard Among Selected Pitchers")
+    st.subheader("Reliability Leaderboard Among Selected Pitchers", text_alignment = 'center')
 
     fig_bar = px.bar(
         knn_results.sort_values('weighted_f1'),
@@ -259,20 +259,15 @@ def main():
         return pd.read_csv('knn_folds.csv')
 
     appData = getPitcherData()
-    st.title('MLB Pitch Clustering')
+    st.title('MLB Pitch Clustering', text_alignment = 'center')
     selectPitcher = st.selectbox('Select Pitcher', sorted(appData['player_name'].unique()), index = 4)
     selectYear = st.slider('Select Year', min_value = appData['game_date'].dt.year.min(), max_value = appData['game_date'].dt.year.max(), value = 2022)
 
     dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
 
     st.subheader('EDA Visuals')
-    basicPlot = px.scatter(dfFilter, x = 'release_pos_x', y = 'release_pos_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'release_pos_x': 'Horizontal Release (in)', 'release_pos_z': 'Vertical Release (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
-    basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
-    st.plotly_chart(basicPlot, width = 'stretch')
-    
-    st.divider()
 
-    st.subheader('Feature Distributions by Pitch Type')
+    st.subheader('Feature Distributions by Pitch Type', text_alignment = 'center')
     features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z']
     titleFeatures = ['Release Speed', 'Spin Rate', 'Horizontal Release', 'Vertical Release']
     col1, col2 = st.columns(2)
@@ -290,11 +285,17 @@ def main():
 
     st.divider()
 
+    basicPlot = px.scatter(dfFilter, x = 'release_pos_x', y = 'release_pos_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'release_pos_x': 'Horizontal Release (in)', 'release_pos_z': 'Vertical Release (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
+    basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
+    st.plotly_chart(basicPlot, width = 'stretch')
+
+    st.divider()
+
     display_knn_experiment(selectPitcher)
 
     st.divider()
 
-    st.subheader("Random Forest Residual Performance Indicator")
+    st.subheader("Random Forest Residual Performance Indicator", text_alignment = 'center')
     st.info('This section shows residual plots for the random forest test set predictions of a given pitcher. The random forest model uses data from January 2015 through July 2022 (approximately 70 percent of the available data from the StatCast era) to make predictions about a pitcher\'s monthly average spin rate for August 2022 onwards. ')
     predResults = getRFPred()
     if selectYear >= 2022:
@@ -308,17 +309,18 @@ def main():
         st.plotly_chart(rfHist, width = 'stretch')
 
     else:
-        st.warning('Test set prediction results only available for August 2022 and on.')
+        st.warning('Test set prediction results only available for 2022 and on.')
 
     st.caption('An outlier residual indicates that a significant difference exists between the best model\'s prediction and the actual test set data. Unexpected high residuals indicate a significant gap between the pitcher\'s expected average spin rate and actual results, which can indicate injury or other issues.')
 
     st.divider()
 
-    st.header("Pitcher Similarity")
+    st.header("Pitcher Similarity", text_alignment = 'center')
     st.info("This section uses the K-nearest neighbors algorithm to find which pitcher-year most closely resembles the selected pitcher's pitch mechanics. " \
     "The similarity score is based on the distance in PCA space, with a higher score indicating a closer match. " \
     "Note that this is based on average pitch characteristics for the season, so it may not capture in-season changes or specific pitch types. " \
     "Results may also include different seasons of the selected pitcher, since their own career trajectory can be the closest physical match.")
+    st.markdown(f'Current Pitcher: {selectYear} {selectPitcher}')
 
     sim_results = find_similar_pitchers(appData, selectPitcher, selectYear)
 
