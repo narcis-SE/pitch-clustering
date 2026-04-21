@@ -97,11 +97,8 @@ def display_knn_experiment(pitcher):
     # st.divider()
 
     st.subheader('Pitcher Drilldown')
-    selected_pitcher = st.selectbox(
-        'Select a Pitcher for Detailed Validation',
-        sorted(knn_results['pitcher'].unique())
-    )
-
+    selected_pitcher = pitcher 
+    
     pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
 
     if pitcher_data.empty:
