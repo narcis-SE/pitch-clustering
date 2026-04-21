@@ -73,7 +73,7 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
 
 def display_knn_experiment(app_data):
     st.header('How Consistent Do Pitchers Pitch Over Time?')
-    st.markdown("""
+    st.info("""
     This experiment tests whether we can distinguish pitch types based on physical metrics. 
     A high weighted F1 score indicates that a pitcher's range of pitches are physically discernible and longitudinally consistent and reliable.
     """)
@@ -96,10 +96,10 @@ def display_knn_experiment(app_data):
 
     st.divider()
 
-    st.subheader('Pitcher Deep Dive')
+    st.subheader('Pitcher Drilldown')
     selected_pitcher = st.selectbox(
         'Select a Pitcher for Detailed Validation',
-        sorted(app_data['player_name'].unique())
+        sorted(knn_results['pitcher'].unique())
     )
 
     pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
@@ -198,7 +198,7 @@ def display_knn_experiment(app_data):
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
-        line_color='black',
+        line_color='white',
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
