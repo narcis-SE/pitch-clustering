@@ -94,9 +94,9 @@ def display_knn_experiment(pitcher):
     col2.metric("Top Performer", knn_results.iloc[0]['pitcher'], f"{knn_results.iloc[0]['weighted_f1']:.3f}")
     col3.metric("Total Pitchers Analyzed", len(knn_results))
 
-    # st.divider()
+    st.divider()
 
-    st.subheader(f'Pitcher Drilldown for {pitcher}')
+    st.subheader(f'Drilldown for {pitcher}')
     selected_pitcher = pitcher 
 
     pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
