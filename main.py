@@ -268,29 +268,20 @@ def main():
     appData = getPitcherData()
     st.title('MLB Pitch Clustering')
     selectPitcher = st.selectbox('Select Pitcher', sorted(appData['player_name'].unique()), index = 4)
-    selectYear = st.slider('Select Year', min_value = appData['game_date'].dt.year.min(), max_value = appData['game_date'].dt.year.max())
+    selectYear = st.slider('Select Year', min_value = appData['game_date'].dt.year.min(), max_value = appData['game_date'].dt.year.max(), value = 2022)
 
     dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
 
-    st.subheader('Basic Scatter Plot Test')
-    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'})
+    st.subheader('Basic Pitch Visualization')
+    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
+    basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
     st.plotly_chart(basicPlot, width = 'stretch')
-
-    st.divider()
-
-    st.subheader("Random Forest Experiment")
-    predResults = getRFPred()
-    if selectYear >= 2022:
-        rfFilter = predResults.loc[(predResults['player_name'] == selectPitcher) & (predResults['period'] >= f'{selectYear}-01-01'), :]
-        rfPlot = px.scatter(rfFilter, x = 'period', y = 'residual', labels = {'period': 'Date', 'residual': 'Random Forest Residual'}, title = f'{selectPitcher} Random Forest Residuals for the Period {selectYear} through 2025')
-        rfPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
-        st.plotly_chart(rfPlot, width = 'stretch')
-    else:
-        st.warning('Test set prediction results only available for August 2022 and on.')
     
     st.divider()
+    
     st.subheader('Feature Distributions by Pitch Type')
-    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'spin_axis']
+    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z']
+    titleFeatures = ['Release Speed', 'Spin Rate', 'Horizontal Break (in)', 'Vertical Break (in)']
     col1, col2 = st.columns(2)
     cols = [col1, col2]
     for i, feature in enumerate(features):
@@ -300,11 +291,31 @@ def main():
             color='pitch_name',
             barmode='overlay',
             opacity=0.7,
-            title=f'{feature} of {selectPitcher} in {selectYear}',
+            title=f'{selectPitcher} {titleFeatures[i]} in {selectYear}',
         )
         cols[i%2].plotly_chart(hist)
 
     st.divider()
+
+    st.subheader("Random Forest Experiment")
+    st.info('This section shows residual plots for the random forest test set predictions of a given pitcher. The random forest model uses data from January 2015 through July 2022 (approximately 70 percent of the available data from the StatCast era) to make predictions about a pitcher\'s monthly average spin rate for August 2022 onwards. ' \
+            'An outlier residual indicates that a significant difference exists between the best model\'s prediction and the actual test set data. Unexpected high residuals indicate a significant gap between the pitcher\'s expected average spin rate and actual results, which can indicate injury or other issues.')
+    predResults = getRFPred()
+    if selectYear >= 2022:
+        rfFilter = predResults.loc[(predResults['player_name'] == selectPitcher) & (predResults['period'] >= f'{selectYear}-01-01'), :]
+        rfPlot = px.scatter(rfFilter, x = 'period', y = 'residual', labels = {'period': 'Date', 'residual': 'Random Forest Residual'}, title = f'{selectPitcher} Random Forest Residuals for the Period {selectYear} through 2025')
+        rfPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
+        st.plotly_chart(rfPlot, width = 'stretch')
+
+        rfHist = px.box(rfFilter, x = 'residual', title = ' ')#, title = f'{selectPitcher} Random Forest Residuals for the Period {selectYear} through 2025')
+        # rfHist.update_layout(title_x = 0.5, title_xanchor = 'center')
+        st.plotly_chart(rfHist, width = 'stretch')
+
+    else:
+        st.warning('Test set prediction results only available for August 2022 and on.')
+
+    st.divider()
+
     st.header("Pitcher Similarity")
     st.info("This section uses the K-nearest neighbors algorithm to find which pitcher-year most closely resembles the selected pitcher's pitch mechanics. " \
     "The similarity score is based on the distance in PCA space, with a higher score indicating a closer match. " \
