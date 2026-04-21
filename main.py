@@ -28,7 +28,7 @@ def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: st
 def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     ''''Find similar pitchers based on pitch features.'''
 
-    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'release_extension']
+    features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z', 'release_extension']
     pitchers = data.groupby(['player_name', data['game_date'].dt.year])[features].mean().reset_index()
     pitchers.columns = ['player_name', 'year'] + features
     pitchers['year'] = pitchers['year'].astype(int)
@@ -71,9 +71,9 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
 
     return final 
 
-def display_knn_experiment(app_data):
+def display_knn_experiment(pitcher):
     st.header('How Consistent Do Pitchers Pitch Over Time?')
-    st.markdown("""
+    st.info("""
     This experiment tests whether we can distinguish pitch types based on physical metrics. 
     A high weighted F1 score indicates that a pitcher's range of pitches are physically discernible and longitudinally consistent and reliable.
     """)
@@ -94,13 +94,14 @@ def display_knn_experiment(app_data):
     col2.metric("Top Performer", knn_results.iloc[0]['pitcher'], f"{knn_results.iloc[0]['weighted_f1']:.3f}")
     col3.metric("Total Pitchers Analyzed", len(knn_results))
 
-    st.divider()
+    # st.divider()
 
-    st.subheader('Pitcher Deep Dive')
-    selected_pitcher = st.selectbox(
-        'Select a Pitcher for Detailed Validation',
-        sorted(app_data['player_name'].unique())
-    )
+    # st.subheader('Pitcher Deep Dive')
+    selected_pitcher = pitcher
+    # selected_pitcher = st.selectbox(
+    #     'Select a Pitcher for Detailed Validation',
+    #     sorted(app_data['player_name'].unique())
+    # )
 
     pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
 
@@ -211,8 +212,6 @@ def display_knn_experiment(app_data):
 
 def main():
 
-    ############# code to retrieve and write data to csv for use in the visualization app since we don't want to have to fetch it each time. commenting this out but leaving it here in case we want to add more #############
-
     # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'lance lynn', 'sonny gray', 'aroldis chapman']
     # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
     # pitchers = [
@@ -246,12 +245,10 @@ def main():
     # print('data retrieval complete, concatenating and writing to csv')
     # data = pd.concat(tempData, ignore_index = True)
     # data.to_csv('pitcher_data_detailed.csv', index = False)
-    # print(data.head())
-    # print(data.shape[0])
 
     @st.cache_data
     def getPitcherData():
-        return pd.read_csv('pitcher_data.csv', parse_dates = ['game_date'])
+        return pd.read_csv('pitcher_data_detailed_cleaned.csv', parse_dates = ['game_date'])
     
     @st.cache_data
     def getRFPred():
@@ -272,16 +269,16 @@ def main():
 
     dfFilter = appData.loc[(appData['player_name'] == selectPitcher) & (appData['game_date'].dt.year == selectYear), :]
 
-    st.subheader('Basic Pitch Visualization')
-    basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
-    basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
-    st.plotly_chart(basicPlot, width = 'stretch')
+    # st.subheader('EDA Visuals')
+    # basicPlot = px.scatter(dfFilter, x = 'pfx_x', y = 'pfx_z', color = 'pitch_name', hover_data = ['release_speed'], labels = {'pfx_x': 'Horizontal Break (in)', 'pfx_z': 'Vertical Break (in)'}, title = f'{selectPitcher} {selectYear} Pitches by Type')
+    # basicPlot.update_layout(title_x = 0.5, title_xanchor = 'center')
+    # st.plotly_chart(basicPlot, width = 'stretch')
     
-    st.divider()
-    
-    st.subheader('Feature Distributions by Pitch Type')
-    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z']
-    titleFeatures = ['Release Speed', 'Spin Rate', 'Horizontal Break (in)', 'Vertical Break (in)']
+    # st.divider()
+
+    # st.subheader('Feature Distributions by Pitch Type')
+    features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z']
+    titleFeatures = ['Release Speed', 'Spin Rate', 'Horizontal Release', 'Vertical Release']
     col1, col2 = st.columns(2)
     cols = [col1, col2]
     for i, feature in enumerate(features):
@@ -297,9 +294,12 @@ def main():
 
     st.divider()
 
-    st.subheader("Random Forest Experiment")
-    st.info('This section shows residual plots for the random forest test set predictions of a given pitcher. The random forest model uses data from January 2015 through July 2022 (approximately 70 percent of the available data from the StatCast era) to make predictions about a pitcher\'s monthly average spin rate for August 2022 onwards. ' \
-            'An outlier residual indicates that a significant difference exists between the best model\'s prediction and the actual test set data. Unexpected high residuals indicate a significant gap between the pitcher\'s expected average spin rate and actual results, which can indicate injury or other issues.')
+    display_knn_experiment(selectPitcher)
+
+    st.divider()
+
+    st.subheader("Random Forest Residual Performance Indicator")
+    st.info('This section shows residual plots for the random forest test set predictions of a given pitcher. The random forest model uses data from January 2015 through July 2022 (approximately 70 percent of the available data from the StatCast era) to make predictions about a pitcher\'s monthly average spin rate for August 2022 onwards. ')
     predResults = getRFPred()
     if selectYear >= 2022:
         rfFilter = predResults.loc[(predResults['player_name'] == selectPitcher) & (predResults['period'] >= f'{selectYear}-01-01'), :]
@@ -313,6 +313,8 @@ def main():
 
     else:
         st.warning('Test set prediction results only available for August 2022 and on.')
+
+    st.caption('An outlier residual indicates that a significant difference exists between the best model\'s prediction and the actual test set data. Unexpected high residuals indicate a significant gap between the pitcher\'s expected average spin rate and actual results, which can indicate injury or other issues.')
 
     st.divider()
 
@@ -339,8 +341,8 @@ def main():
     else:
         st.warning("Select a different year or pitcher to generate similarity matches.")
 
-    st.divider()
-    display_knn_experiment(appData)
+    # st.divider()
+
 
 if __name__ == "__main__":
     main()
