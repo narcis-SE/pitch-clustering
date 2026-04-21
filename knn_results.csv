@@ -2,10 +2,10 @@ pitcher,pitch_types,years,best_k,best_metric,n_years,n_pitches,weighted_f1
 "Miller, Mason","FF,SL,CH,FC","[2023, 2024, 2025]",5,manhattan,3,2512,0.993
 "deGrom, Jacob","FF,SL,CH,SI,CU","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",11,manhattan,10,17403,0.982
 "McKenzie, Triston","FF,SL,CU,CH","[2020, 2021, 2022, 2023, 2024, 2025]",9,manhattan,6,6893,0.973
-"Sánchez, Cristopher","SI,CH,SL","[2021, 2022, 2023, 2024, 2025]",3,euclidean,5,8003,0.965
+"Sánchez, Cristopher","SI,CH,SL","[2021, 2022, 2023, 2024, 2025]",5,manhattan,5,8003,0.97
 "Verlander, Justin","FF,SL,CU,CH,ST,FC","[2016, 2017, 2018, 2019, 2022, 2023, 2024, 2025]",3,manhattan,8,24506,0.959
 "Gausman, Kevin","FF,FS,SL,CH,SI","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",5,manhattan,10,26386,0.951
-"Scherzer, Max","FF,SL,CH,CU,FC","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",5,euclidean,10,23801,0.951
+"Scherzer, Max","FF,SL,CH,CU,FC","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",7,manhattan,10,23801,0.951
 "Gilbert, Logan","FF,SL,FS,KC,CU,CH,FC,SI","[2021, 2022, 2023, 2024, 2025]",5,manhattan,5,13106,0.931
 "Detmers, Reid","FF,SL,CU,CH,SI,ST","[2021, 2022, 2023, 2024, 2025]",15,manhattan,5,7414,0.929
 "Cease, Dylan","FF,SL,KC,CH,ST,SI","[2019, 2020, 2021, 2022, 2023, 2024, 2025]",5,manhattan,7,17614,0.919
@@ -19,7 +19,7 @@ pitcher,pitch_types,years,best_k,best_metric,n_years,n_pitches,weighted_f1
 "Webb, Logan","SI,CH,ST,FF,FC","[2019, 2020, 2021, 2022, 2023, 2024, 2025]",5,manhattan,7,16002,0.848
 "Sears, JP","FF,ST,CH,SL,SI,CU","[2022, 2023, 2024, 2025]",15,manhattan,4,8866,0.817
 "Burnes, Corbin","FC,CU,SL,CH,SI,FF,ST","[2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",15,manhattan,8,15023,0.806
-"Glasnow, Tyler","FF,CU,SL,SI,CH","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",3,euclidean,10,12565,0.781
+"Glasnow, Tyler","FF,CU,SL,SI,CH","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",3,manhattan,10,12565,0.78
 "Nola, Aaron","FF,KC,SI,CH,FC,CU","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",3,manhattan,10,26004,0.779
 "Crochet, Garrett","FF,FC,ST,SI,CH,SL","[2020, 2021, 2023, 2024, 2025]",3,manhattan,5,6766,0.767
 "Wheeler, Zack","FF,SI,FC,CU,ST,CH,FS","[2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",15,manhattan,9,23109,0.755
@@ -28,7 +28,7 @@ pitcher,pitch_types,years,best_k,best_metric,n_years,n_pitches,weighted_f1
 "Suarez, Ranger","SI,CH,FF,CU,FC,SL","[2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",15,manhattan,8,12077,0.734
 "Skubal, Tarik","FF,CH,SL,SI,CU,FS","[2020, 2021, 2022, 2023, 2024, 2025]",5,manhattan,6,12070,0.732
 "Mikolas, Miles","FF,SL,SI,CU,CH,ST,CS","[2018, 2019, 2021, 2022, 2023, 2024, 2025]",15,manhattan,7,17692,0.722
-"Skenes, Paul","FF,FS,ST,CH,CU,SI,SL","[2024, 2025]",3,euclidean,2,4944,0.72
+"Skenes, Paul","FF,FS,ST,CH,CU,SI,SL","[2024, 2025]",7,manhattan,2,4944,0.718
 "Buehler, Walker","FF,FC,KC,SI,SL,ST,CH","[2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025]",3,manhattan,8,14371,0.711
 "Gibson, Kyle","SI,FF,CH,SL,CU,FC,ST","[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",15,manhattan,10,22469,0.685
 "Singer, Brady","SI,SL,FF,CH,ST,FC","[2020, 2021, 2022, 2023, 2024, 2025]",3,manhattan,6,13675,0.683
