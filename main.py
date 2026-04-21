@@ -96,9 +96,9 @@ def display_knn_experiment(pitcher):
 
     # st.divider()
 
-    st.subheader('Pitcher Drilldown')
+    st.subheader(f'Pitcher Drilldown for {pitcher}')
     selected_pitcher = pitcher 
-    
+
     pitcher_data = knn_results[knn_results['pitcher'] == selected_pitcher]
 
     if pitcher_data.empty:
