@@ -10,6 +10,8 @@ import plotly.graph_objects as go
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
+from changepoint_online import MDFocus, MDGaussian
+from plotly.subplots import make_subplots
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -207,7 +209,102 @@ def display_knn_experiment(app_data):
         "Pitchers with higher F1 scores have more physically consistent and distinguishable pitch types. "
         "Lower scores may reflect pitch type changes over time or overlapping pitch characteristics. "
     )
+def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
+    filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)]
+    filtered_df['moving_avg'] = filtered_df[column].rolling(window=10, center = True).mean()
 
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=filtered_df.index, 
+        y=filtered_df[column],
+        mode='lines+markers',
+        name=column,
+        line=dict(color='blue')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=filtered_df.index, 
+        y=filtered_df['moving_avg'],
+        mode='lines',
+        name='10-Game Moving Avg',
+        line=dict(color='red', dash='dash')
+    ))
+
+    fig.update_layout(
+        title=f"{column} Trend: {pitcher_name} - {pitch_type}",
+        xaxis_title="Game Sequence",
+        yaxis_title=column,
+        hovermode="x unified",
+        template="plotly_white"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
+    filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)].select_dtypes(include='number').copy()
+    #standardize the data
+    scaler = StandardScaler()
+    filtered_df = pd.DataFrame(scaler.fit_transform(filtered_df), columns=filtered_df.columns, index=filtered_df.index)
+    data_series = filtered_df.values
+    #iterate through the data and update the change detection model with each new data point, plotting the changepoints as they are detected
+    detector = MDFocus(MDGaussian(), pruning_params=(2, 1))
+    detect_list = []
+    #run the change detection model, each time the threshold is breached, reset the model and continue iterating through the data
+    for x in data_series:
+        detector.update(x)
+        detect_list.append(detector.statistic())
+        if detector.statistic() >= threshold:
+            detector = MDFocus(MDGaussian(), pruning_params=(2, 1))
+    #conduct pca on the filtered data to reduce it to one dimension for easier visualization of the change detection statistic
+    pca = PCA(n_components=9)
+    pca_data = pca.fit_transform(filtered_df)
+
+    
+    #plot the change detection statistic over time, with vertical lines indicating where changepoints were detected
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(go.Scatter(
+            x=filtered_df.index, 
+            y=detect_list, 
+            name="Detection Statistic",
+            mode='lines+markers',
+            line=dict(color='blue')
+        ),
+        secondary_y=False,
+    )
+    fig.add_trace(go.Scatter(
+            x=filtered_df.index, 
+            y=[threshold] * len(filtered_df), 
+            name="Threshold",
+            mode='lines',
+            line=dict(color='red', dash='dash')
+        ), secondary_y=False,
+    )
+    pca_label = f"1st PC: {pca.explained_variance_ratio_[0] * 100:.2f}% variance"
+    fig.add_trace(go.Scatter(
+            x=filtered_df.index, 
+            y=pca_data[:, 0], 
+            name=pca_label,
+            mode='lines',
+            line=dict(color='green'),
+            opacity=0.5), secondary_y=True,)
+    fig.update_layout(
+        title=f"Change Detection Statistic for {pitcher_name}",
+        xaxis_title="Game Sequence",
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    fig.update_yaxes(title_text="Detection Statistic", secondary_y=False)
+    fig.update_yaxes(title_text="Principal Component Scale", secondary_y=True)
+
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+                "An online multivariate change detection algorithm is applied to agregated quantitative predictors "
+                "(release speed, release position, spin rate, etc.) to identify potential shifts in the pitcher's mechanics over time. "
+                "When the threshold is breached, it indicates a statistically significant change in the multivariate distribution of the pitch characteristics. "
+                "The threshold is then reset to continue monitoring for subsequent changes. The green line shows the first principal component of the pitch characteristics. "
+                "\n\n Note: the model is not trained on the PCA data, it just serves as a visual representation of the overall trends in the pitch characteristics, so that you can see if the detected changepoints correspond to noticeable shifts in the pitch data."
+            )
+    #return detect_list, pca_data, pca.explained_variance_ratio_
 
 def main():
 
@@ -264,6 +361,10 @@ def main():
     @st.cache_data
     def getKNNFolds():
         return pd.read_csv('knn_folds.csv')
+
+    @st.cache_data
+    def getCDData():
+        return pd.read_csv('change_detection.csv')
 
     appData = getPitcherData()
     st.title('MLB Pitch Clustering')
@@ -330,6 +431,21 @@ def main():
 
     st.divider()
     display_knn_experiment(appData)
+
+
+    #change detection
+    CDData = getCDData()
+    st.subheader("Change Detection Analysis")
+    st.info("This section applies an online multivariate change detection algorithm to identify potential shifts in a pitcher's mechanics over time")
+    CDPitcher = st.selectbox('Select Pitcher', sorted(CDData['player_name'].unique()), index = 6)
+    CDPitchType = st.selectbox('Select Pitch Type', sorted(CDData[CDData['player_name'] == CDPitcher]['pitch_name'].unique()))
+    exploreColumn = st.selectbox('Select Column to Explore', CDData.select_dtypes(include='number').columns.tolist(), index = 0)
+    CDThreshold = st.slider('Select Change Detection Threshold', min_value = 5, max_value = 100, value = 25)
+    st.subheader('Exploratory Plot')
+    plot_pitcher_trends(CDData, CDPitcher, CDPitchType, exploreColumn)
+    st.subheader('Change Detection Results')
+    detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold)
+    st.divider()
 
 if __name__ == "__main__":
     main()
