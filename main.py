@@ -256,51 +256,84 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     #conduct pca on the filtered data to reduce it to one dimension for easier visualization of the change detection statistic
     pca = PCA(n_components=9)
     pca_data = pca.fit_transform(filtered_df)
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(
+        x=filtered_df.index, 
+        y=detect_list, 
+        mode='lines+markers',
+        name='Detection Statistic',
+        line=dict(color='blue')
+    ))
+    fig1.add_hline(y=threshold, line_dash="dash", line_color="red", 
+                annotation_text="Threshold", annotation_position="top left")
 
-    
-    #plot the change detection statistic over time, with vertical lines indicating where changepoints were detected
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(go.Scatter(
-            x=filtered_df.index, 
-            y=detect_list, 
-            name="Detection Statistic",
-            mode='lines+markers',
-            line=dict(color='blue')
-        ),
-        secondary_y=False,
-    )
-    fig.add_trace(go.Scatter(
-            x=filtered_df.index, 
-            y=[threshold] * len(filtered_df), 
-            name="Threshold",
-            mode='lines',
-            line=dict(color='red', dash='dash')
-        ), secondary_y=False,
-    )
-    pca_label = f"1st PC: {pca.explained_variance_ratio_[0] * 100:.2f}% variance"
-    fig.add_trace(go.Scatter(
-            x=filtered_df.index, 
-            y=pca_data[:, 0], 
-            name=pca_label,
-            mode='lines',
-            line=dict(color='green'),
-            opacity=0.5), secondary_y=True,)
-    fig.update_layout(
-        title=f"Change Detection Statistic for {pitcher_name}",
+    fig1.update_layout(
+        title=f"Change Detection: {pitcher_name}, {pitch_type}",
         xaxis_title="Game Sequence",
-        hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-    fig.update_yaxes(title_text="Detection Statistic", secondary_y=False)
-    fig.update_yaxes(title_text="Principal Component Scale", secondary_y=True)
+        yaxis_title="Statistic",
+        hovermode="x unified"
+    )
 
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-                "An online multivariate change detection algorithm is applied to agregated quantitative predictors "
-                "(release speed, release position, spin rate, etc.) to identify potential shifts in the pitcher's mechanics over time. "
-                "When the threshold is breached, it indicates a statistically significant change in the multivariate distribution of the pitch characteristics. "
-                "The threshold is then reset to continue monitoring for subsequent changes. The green line shows the first principal component of the pitch characteristics. "
-                "\n\n Note: the model is not trained on the PCA data, it just serves as a visual representation of the overall trends in the pitch characteristics, so that you can see if the detected changepoints correspond to noticeable shifts in the pitch data."
+    st.plotly_chart(fig1, use_container_width=True)
+
+    st.subheader("Reduced-Dimension Visualization of Pitch Characteristics with Detected Changepoints")
+    st.write("Click and drag to rotate the view. Use the scroll wheel to zoom.")
+    st.write(f"The first 2 components represent {np.sum(pca.explained_variance_ratio_[:2]) * 100:.2f}% of the variance in the original data.")
+    colors = ['red' if val > threshold else 'darkblue' for val in detect_list]
+    breach_indices = [i for i, val in enumerate(detect_list) if val > threshold]
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter3d(
+        x=filtered_df.index,
+        y=pca_data[:, 0], 
+        z=pca_data[:, 1],
+        mode='lines+markers',
+        name='Pitch Characteristics',
+        line=dict(
+            color=colors, 
+            width=2
+        ),
+        marker=dict(
+            size=2, 
+            color=colors,
+            opacity=0.7
+        ),
+        hovertemplate="Game: %{x}<br>1st PC: %{y:.2f}<br>2nd PC: %{z:.2f}<extra></extra>"
+    ))
+
+    #add highlight when threshold is breached
+    if breach_indices:
+        fig2.add_trace(go.Scatter3d(
+            x=filtered_df.index[breach_indices],
+            y=pca_data[breach_indices, 0],
+            z=pca_data[breach_indices, 1],
+            mode='markers',
+            name='Threshold Breached',
+            marker=dict(
+                size=4,
+                color='red',
+                line=dict(color='white', width=1)
             )
+        ))
+
+    fig2.update_layout(
+        title="Reduce Dimension Visualization",
+        scene=dict(
+            xaxis_title='Game Sequence',
+            yaxis_title=f'1st PC: {pca.explained_variance_ratio_[0] * 100:.2f}% of variance',
+            zaxis_title=f'2nd PC: {pca.explained_variance_ratio_[1] * 100:.2f}% of variance'
+        ),
+        height=700,
+        showlegend=True
+    )
+
+
+    st.plotly_chart(fig2, use_container_width=True)
+    st.write("Game sequence is plotted on the x-axis, with the first two principal components of the pitch "
+            "characteristics on the y and z axes. Points highlighted in red represent a statistically significant change "
+             "in the pitch characteristics. Look for clusters "
+             "or shifts in the trajectory that may correspond to detected changepoints or notable trends in the data."
+             "\n\n Note: the principal components are simply shown to represent the trend of the multi-dimensional "
+             "pitching characteristics over time, they are not used to calculate the change statistic.")
     #return detect_list, pca_data, pca.explained_variance_ratio_
 
 def main():
@@ -446,16 +479,27 @@ def main():
 
     #change detection
     CDData = getCDData()
-    st.subheader("Change Detection Analysis")
-    st.info("This section applies an online multivariate change detection algorithm to identify potential shifts in a pitcher's mechanics over time")
+    st.header("Change Detection", text_alignment = 'center')
+    st.info("This section applies an online multivariate change detection algorithm to identify potential shifts in a pitcher's mechanics over time " \
+            "to assess when a pitcher may have changed their pitching style or experienced a significant event (e.g. injury). " \
+            "The first plot is exploratory, and shows the selected pitch characteristic over time, with a moving average to help identify trends. " \
+            "The second plot shows the change detection statistic over time, with points above the threshold indicating a detected change. "
+            "The third plot shows the trajectory of the pitch characteristics in PCA space, with points colored by the change detection statistic "
+            "to visually identify when significant shifts in mechanics may have occurred.")
+    
     CDPitcher = st.selectbox('Select Pitcher', sorted(CDData['player_name'].unique()), index = 6)
     CDPitchType = st.selectbox('Select Pitch Type', sorted(CDData[CDData['player_name'] == CDPitcher]['pitch_name'].unique()))
     exploreColumn = st.selectbox('Select Column to Explore', CDData.select_dtypes(include='number').columns.tolist(), index = 0)
     CDThreshold = st.slider('Select Change Detection Threshold', min_value = 5, max_value = 100, value = 25)
+    
     st.subheader('Exploratory Plot')
     plot_pitcher_trends(CDData, CDPitcher, CDPitchType, exploreColumn)
-    st.subheader('Change Detection Results')
-    detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold)
+    st.subheader('Change Detection Analysis and PCA Visualization')
+    try:
+        detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold)
+    except Exception as e:
+        st.error(f"An error occurred during change detection")
+        st.info("This can happen if there are insufficient data points for the selected pitcher and pitch type. Try selecting a different pitcher, pitch type, or adjusting the threshold.")
     st.divider()
 
 if __name__ == "__main__":
