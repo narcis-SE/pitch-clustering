@@ -163,7 +163,7 @@ def display_knn_experiment(pitcher):
                 annotation_text='0.8 threshold'
             )
             fold_fig.update_layout(title_x=0.5, title_xanchor='center')
-            st.plotly_chart(fold_fig, use_container_width=True)
+            st.plotly_chart(fold_fig, width='stretch')
             st.caption(
                 "Each point shows how well the model classified pitch types in that year, "
                 "trained on all prior years. A declining trend may indicate meaningful "
@@ -191,7 +191,7 @@ def display_knn_experiment(pitcher):
             'n_pitches': '# Pitches',
             'n_years': 'Years of Data'
         },
-        title='Pitch Classification Reliability by Pitcher',
+        title='KNN F1 Score Experiment - Pitcher Reliability',
         height=900
     )
     fig_bar.add_vline(
@@ -201,11 +201,51 @@ def display_knn_experiment(pitcher):
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width = 'stretch')
     st.caption(
         "Pitchers with higher F1 scores have more physically consistent and distinguishable pitch types. "
         "Lower scores may reflect pitch type changes over time or overlapping pitch characteristics. "
     )
+
+def plot_kmeans_experiment(pitcher):
+
+    @st.cache_data
+    def getKMeansResults():
+        return pd.read_csv('kmeans_results.csv')
+
+    kmeans_results = getKMeansResults()
+
+    fig_bar = px.bar(
+    kmeans_results.sort_values('best_adj_rand'),
+    x='best_adj_rand',
+    y='pitcher',
+    orientation='h',
+    color='best_adj_rand',
+    color_continuous_scale='RdYlGn',
+    range_color=[0.3, 1.0],
+    hover_data=['pitch_types', 'best_k', 'best_adj_rand', 'n_pitches', 'n_years'],
+    labels={
+        'best_adj_rand': 'Best Adjusted Rand Index',
+        'pitcher': 'Pitcher',
+        'pitch_types': 'Pitch Types',
+        'best_k': 'Best k',
+        'n_pitches': '# Pitches',
+        'n_years': 'Years of Data'
+    },
+    title='KMeans Adjusted Rand Index Experiment - Pitch Separation',
+    height=900
+    )
+    fig_bar.add_vline(
+        x=0.8,
+        line_dash='dash',
+        line_color='white',
+        annotation_text='0.8 threshold'
+    )
+    fig_bar.update_layout(title_x=0.5, title_xanchor='center')
+    st.subheader("Pitch Separation Leaderboard Among Selected Pitchers", text_alignment = 'center')
+    st.plotly_chart(fig_bar, width = 'stretch')
+    st.caption('Pitchers with higher adjusted rand index scores have more distinct and separable pitches than those with lower ones. Lower scores can indicate blending of pitch metrics over time or overlapping characteristics. This indistinctness is unfavorable for pitchers.')
+
 def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
     filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)]
     filtered_df['moving_avg'] = filtered_df[column].rolling(window=10, center = True).mean()
@@ -236,7 +276,7 @@ def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
         template="plotly_white"
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width = 'stretch')
 
 def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)].select_dtypes(include='number').copy()
@@ -274,7 +314,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
         hovermode="x unified"
     )
 
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width = 'stretch')
 
     st.subheader("Reduced-Dimension Visualization of Pitch Characteristics with Detected Changepoints")
     st.write("Click and drag to rotate the view. Use the scroll wheel to zoom.")
@@ -425,10 +465,6 @@ def main():
 
     st.divider()
 
-    display_knn_experiment(selectPitcher)
-
-    st.divider()
-
     st.subheader("Random Forest Residual Performance Indicator", text_alignment = 'center')
     st.info('This section shows residual plots for the random forest test set predictions of a given pitcher. The random forest model uses data from January 2015 through July 2022 (approximately 70 percent of the available data from the StatCast era) to make predictions about a pitcher\'s monthly average spin rate for August 2022 onwards. ')
     predResults = getRFPred()
@@ -446,6 +482,14 @@ def main():
         st.warning('Test set prediction results only available for 2022 and on.')
 
     st.caption('An outlier residual indicates that a significant difference exists between the best model\'s prediction and the actual test set data. Unexpected high residuals indicate a significant gap between the pitcher\'s expected average spin rate and actual results, which can indicate injury or other issues.')
+
+    st.divider()
+
+    display_knn_experiment(selectPitcher)
+
+    st.divider()
+
+    plot_kmeans_experiment(selectPitcher)
 
     st.divider()
 
@@ -473,11 +517,9 @@ def main():
     else:
         st.warning("Select a different year or pitcher to generate similarity matches.")
 
-    # st.divider()
+    st.divider()
 
-
-
-    #change detection
+        #change detection
     CDData = getCDData()
     st.header("Change Detection", text_alignment = 'center')
     st.info("This section applies an online multivariate change detection algorithm to identify potential shifts in a pitcher's mechanics over time " \
@@ -500,7 +542,12 @@ def main():
     except Exception as e:
         st.error(f"An error occurred during change detection")
         st.info("This can happen if there are insufficient data points for the selected pitcher and pitch type. Try selecting a different pitcher, pitch type, or adjusting the threshold.")
-    st.divider()
+    
+    # st.divider()
+
+
+
+
 
 if __name__ == "__main__":
     main()
