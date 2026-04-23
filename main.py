@@ -558,6 +558,7 @@ def main():
                 polar=dict(radialaxis=dict(visible=True, range=[0, 1], tickfont=dict(color='black', size=10))),
                 title=f'Physical Profile Comparison: {selectPitcher} ({selectYear}) vs Similar Pitchers',
                 title_x=0.5,
+                title_xanchor='center',
                 showlegend=True,
                 height=500
             )
