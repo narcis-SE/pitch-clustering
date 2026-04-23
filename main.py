@@ -579,7 +579,7 @@ def main():
                     fill='toself',
                     name=f"{name} ({int(row['year'])})",
                     line=dict(color=colors[i], width=2),
-                    opacity=0.6
+                    opacity=0.4
                 ))
 
             fig_radar.update_layout(
