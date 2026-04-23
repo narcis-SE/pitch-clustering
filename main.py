@@ -543,11 +543,9 @@ def main():
                 st.caption(f"Velocity: {row['release_speed']:.1f} mph")
                 st.caption(f"Spin: {int(row['release_spin_rate'])} rpm")
 
-        # radar chart comparing selected pitcher vs similar pitchers
         radar_features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z', 'release_extension']
-        radar_labels = ['Release Speed', 'Spin Rate', 'Horiz. Release', 'Vert. Release', 'Extension']
+        radar_labels = ['Release Speed', 'Spin Rate', 'Horizontal Release', 'Vertical Release', 'Extension']
 
-        # get selected pitcher's average for the selected year
         selected_avg = appData[
             (appData['player_name'] == selectPitcher) & 
             (appData['game_date'].dt.year == selectYear)
