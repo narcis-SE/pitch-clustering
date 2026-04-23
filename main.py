@@ -13,6 +13,59 @@ from sklearn.neighbors import NearestNeighbors
 from changepoint_online import MDFocus, MDGaussian
 from plotly.subplots import make_subplots
 import plotly.colors as pc
+import matplotlib.pyplot as plt
+
+
+
+def analyze_pitcher_stability(df, pitcher_id, baseline_size=500, window_size=100):
+    pitcher_df = df[df['pitcher'] == pitcher_id].copy()
+    pitcher_name = pitcher_df['player_name'].iloc[0]
+    pitcher_df['game_date'] = pd.to_datetime(pitcher_df['game_date'])
+    pitcher_df = pitcher_df.sort_values('game_date', kind='mergesort').reset_index(drop=True)
+    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'release_pos_x', 'release_pos_z',
+                'release_extension']
+    clean_df = pitcher_df.dropna(subset=features).copy().reset_index(drop=True)
+
+    #Scale and baseline
+    scaler = StandardScaler()
+    X = scaler.fit_transform(clean_df[features])
+    gmm_ref = GMM(n_components=3, covariance_type='full', random_state=42)
+
+    #train gm mode on baseline size
+    gmm_ref.fit(X[:baseline_size])
+
+    #Calculating log probability of the current window size
+    #higher scores = pitcher looks close to baseline
+    #lower scores = physical profile of pitches is drifting away
+    results = []
+    for i in range(len(X) - window_size):
+        score = gmm_ref.score(X[i: i + window_size])
+        current_date = clean_df.iloc[i + window_size]['game_date']
+        results.append({'game_date': current_date, 'drift_score': score})
+
+    #Get averages
+    drift_df = pd.DataFrame(results)
+    game_stability = drift_df.groupby('game_date')['drift_score'].mean().reset_index()
+
+    fig, ax = plt.subplots(figsize=(14, 8))
+    ax.plot(game_stability['game_date'], game_stability['drift_score'], marker='o', linestyle='-', color='darkorange',
+            alpha=0.6, label='Game Avg')
+    ax.plot(game_stability['game_date'], game_stability['drift_score'].rolling(5).mean(), color='lime', linewidth=2.5,
+            label='5-Game Trend')
+
+    baseline_metrics = game_stability['drift_score'].iloc[:5]
+    threshold = baseline_metrics.mean() - (2 * baseline_metrics.std())
+
+    ax.axhline(y=threshold, color='red', linestyle='--', label='Physical Signature Limit')
+    ax.set_title(f"Physical Profile Stability: {pitcher_name}")
+    ax.set_ylabel("GMM Log Probability (Stability)")
+    ax.set_xlabel("Year")
+    ax.legend()
+    ax.grid(True)
+    fig.tight_layout()
+    st.pyplot(fig)
+    plt.close(fig)
+
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -21,8 +74,8 @@ def get_player_id(first_name: str, last_name: str) -> int:
         return player['key_mlbam'].values[0]
     else:
         raise ValueError(f'Player {first_name} {last_name} not found.')
-    
-def get_pitcher_data(first_name: str , last_name: str, start_dt: str, end_dt: str) -> pd.DataFrame:
+
+def get_pitcher_data(first_name: str, last_name: str, start_dt: str, end_dt: str) -> pd.DataFrame:
     '''Get the statcast data for a given pitcher and date range. Returns a Dataframe with statcast data.'''
     player_id = get_player_id(first_name, last_name)
     data = statcast_pitcher(start_dt, end_dt, player_id)
@@ -51,7 +104,7 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
 
     pitcher_match = pitchers[
         (pitchers['player_name'] == target_pitcher) & (pitchers['year'] == int(target_year))
-    ]
+        ]
 
     if pitcher_match.empty: return None
 
@@ -225,7 +278,6 @@ def display_knn_experiment(pitcher):
     )
 
 def plot_kmeans_experiment(pitcher):
-
     @st.cache_data
     def getKMeansResults():
         return pd.read_csv('kmeans_results.csv')
@@ -394,7 +446,6 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
         showlegend=True
     )
 
-
     st.plotly_chart(fig2, use_container_width=True)
     st.write("Game sequence is plotted on the x-axis, with the first two principal components of the pitch "
             "characteristics on the y and z axes. Points highlighted in red represent a statistically significant change "
@@ -405,7 +456,6 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     #return detect_list, pca_data, pca.explained_variance_ratio_
 
 def main():
-
     # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'lance lynn', 'sonny gray', 'aroldis chapman']
     # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
     # pitchers = [
@@ -625,7 +675,22 @@ def main():
     # st.divider()
 
 
+    @st.cache_data
+    def getStabilityData():
+        return pd.read_csv('pitcher_data.csv')
 
+    st.header("Pitcher Stability", text_alignment='center')
+    st.info(
+        "This section models a pitcher's physical profile over time using a Gaussian Mixture Model trained on their baseline pitches. "
+        "A declining drift score indicates the pitcher's mechanics are moving away from their established baseline, implying a decreased in performance.")
+
+    stability_data = getStabilityData()
+    pitcher_map = stability_data.drop_duplicates(subset='pitcher')[['player_name', 'pitcher']].sort_values(
+        'player_name')
+    pitcher_names = pitcher_map['player_name'].tolist()
+    selected_stability_pitcher = st.selectbox('Select Pitcher', pitcher_names, key='stability_pitcher')
+    selected_pitcher_id = pitcher_map[pitcher_map['player_name'] == selected_stability_pitcher]['pitcher'].iloc[0]
+    analyze_pitcher_stability(stability_data, selected_pitcher_id)
 
 
 if __name__ == "__main__":
