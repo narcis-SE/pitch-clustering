@@ -173,14 +173,14 @@ def display_knn_experiment(pitcher):
     st.divider()
     st.subheader("Reliability Leaderboard Among Selected Pitchers", text_alignment = 'center')
 
-    knn_results['selected'] = knn_results['pitcher'] == selected_pitcher
     fig_bar = px.bar(
-    knn_results.sort_values('weighted_f1'),
-    x='weighted_f1',
-    y='pitcher',
-    orientation='h',
-    color='selected',
-    color_discrete_map={True: '#00CC96', False: '#636EFA'},
+        knn_results.sort_values('weighted_f1'),
+        x='weighted_f1',
+        y='pitcher',
+        orientation='h',
+        color='weighted_f1',
+        color_continuous_scale='RdYlGn',
+        range_color=[0.3, 1.0],
         hover_data=['pitch_types', 'best_k', 'best_metric', 'n_pitches', 'n_years'],
         labels={
             'weighted_f1': 'Weighted F1 Score',
@@ -215,15 +215,14 @@ def plot_kmeans_experiment(pitcher):
 
     kmeans_results = getKMeansResults()
 
-    kmeans_results['selected'] = kmeans_results['pitcher'] == pitcher
-
     fig_bar = px.bar(
     kmeans_results.sort_values('best_adj_rand'),
     x='best_adj_rand',
     y='pitcher',
     orientation='h',
-    color='selected',
-    color_discrete_map={True: '#00CC96', False: '#636EFA'},
+    color='best_adj_rand',
+    color_continuous_scale='RdYlGn',
+    range_color=[0.3, 1.0],
     hover_data=['pitch_types', 'best_k', 'best_adj_rand', 'n_pitches', 'n_years'],
     labels={
         'best_adj_rand': 'Best Adjusted Rand Index',
@@ -515,6 +514,58 @@ def main():
                 st.write(f"Similarity Score: {row['sim_score']:.2%}")                
                 st.caption(f"Velocity: {row['release_speed']:.1f} mph")
                 st.caption(f"Spin: {int(row['release_spin_rate'])} rpm")
+
+        # radar chart comparing selected pitcher vs similar pitchers
+        radar_features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z', 'release_extension']
+        radar_labels = ['Release Speed', 'Spin Rate', 'Horiz. Release', 'Vert. Release', 'Extension']
+
+        # get selected pitcher's average for the selected year
+        selected_avg = appData[
+            (appData['player_name'] == selectPitcher) & 
+            (appData['game_date'].dt.year == selectYear)
+        ][radar_features].mean()
+
+        if not selected_avg.isna().all():
+            all_values = pd.concat([
+                selected_avg.to_frame().T,
+                sim_results[radar_features]
+            ])
+            normalized = (all_values - all_values.min()) / (all_values.max() - all_values.min())
+
+            fig_radar = go.Figure()
+
+            fig_radar.add_trace(go.Scatterpolar(
+                r=normalized.iloc[0].tolist() + [normalized.iloc[0].tolist()[0]],
+                theta=radar_labels + [radar_labels[0]],
+                fill='toself',
+                name=f'{selectPitcher} ({selectYear})',
+                line=dict(color='#00CC96', width=2)
+            ))
+
+            colors = ['#636EFA', '#EF553B', '#FFA15A']
+            for i, (_, row) in enumerate(sim_results.iterrows()):
+                name = ' '.join(reversed(row['player_name'].split(', ')))
+                fig_radar.add_trace(go.Scatterpolar(
+                    r=normalized.iloc[i+1].tolist() + [normalized.iloc[i+1].tolist()[0]],
+                    theta=radar_labels + [radar_labels[0]],
+                    fill='toself',
+                    name=f"{name} ({int(row['year'])})",
+                    line=dict(color=colors[i], width=2),
+                    opacity=0.6
+                ))
+
+            fig_radar.update_layout(
+                polar=dict(radialaxis=dict(visible=True, range=[0, 1], tickfont=dict(color='black', size=10))),
+                title=f'Physical Profile Comparison: {selectPitcher} ({selectYear}) vs Similar Pitchers',
+                title_x=0.5,
+                showlegend=True,
+                height=500
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
+            st.caption(
+                "Radar chart shows physical metrics for the selected pitcher versus their most similar matches. "
+                "Overlapping profiles may indicate greater mechanical similarity."
+            )
     else:
         st.warning("Select a different year or pitcher to generate similarity matches.")
 
