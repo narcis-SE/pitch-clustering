@@ -12,6 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from changepoint_online import MDFocus, MDGaussian
 from plotly.subplots import make_subplots
+import plotly.colors as pc
 
 def get_player_id(first_name: str, last_name: str) -> int:
     '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
@@ -72,6 +73,12 @@ def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     final = final.drop_duplicates(subset='player_name', keep='first').head(3).reset_index(drop=True)
 
     return final 
+
+def get_rdylgn_color(value, min_val=0.3, max_val=1.0):
+    normalized = (value - min_val) / (max_val - min_val)
+    normalized = max(0, min(1, normalized))
+    colorscale = pc.get_colorscale('RdYlGn')
+    return pc.sample_colorscale(colorscale, normalized)[0]
 
 def display_knn_experiment(pitcher):
     st.header('How Consistent Do Pitchers Pitch Over Time?', text_alignment = 'center')
@@ -173,8 +180,10 @@ def display_knn_experiment(pitcher):
     st.divider()
     st.subheader("Reliability Leaderboard Among Selected Pitchers", text_alignment = 'center')
 
+    sorted_results = knn_results.sort_values('weighted_f1')
+
     fig_bar = px.bar(
-        knn_results.sort_values('weighted_f1'),
+        sorted_results,
         x='weighted_f1',
         y='pitcher',
         orientation='h',
@@ -194,6 +203,14 @@ def display_knn_experiment(pitcher):
         title='KNN F1 Score Experiment - Pitcher Reliability',
         height=900
     )
+
+    colors = [
+        'dodgerblue' if p == selected_pitcher 
+        else get_rdylgn_color(v) 
+        for p, v in zip(sorted_results['pitcher'], sorted_results['weighted_f1'])
+    ]
+    fig_bar['data'][0]['marker']['color'] = colors
+    
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
@@ -215,8 +232,11 @@ def plot_kmeans_experiment(pitcher):
 
     kmeans_results = getKMeansResults()
 
+    selected_pitcher = pitcher
+
+    sorted_results = kmeans_results.sort_values('best_adj_rand')
     fig_bar = px.bar(
-    kmeans_results.sort_values('best_adj_rand'),
+    sorted_results,
     x='best_adj_rand',
     y='pitcher',
     orientation='h',
@@ -235,6 +255,14 @@ def plot_kmeans_experiment(pitcher):
     title='KMeans Adjusted Rand Index Experiment - Pitch Separation',
     height=900
     )
+
+    colors = [
+        'dodgerblue' if p == selected_pitcher 
+        else get_rdylgn_color(v) 
+        for p, v in zip(sorted_results['pitcher'], sorted_results['best_adj_rand'])
+    ]
+    fig_bar['data'][0]['marker']['color'] = colors
+
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
