@@ -213,7 +213,7 @@ def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(
-        x=filtered_df.index, 
+        x=np.arange(1, len(filtered_df) + 1),
         y=filtered_df[column],
         mode='lines+markers',
         name=column,
@@ -221,7 +221,7 @@ def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
     ))
 
     fig.add_trace(go.Scatter(
-        x=filtered_df.index, 
+        x=np.arange(1, len(filtered_df) + 1),
         y=filtered_df['moving_avg'],
         mode='lines',
         name='10-Game Moving Avg',
@@ -258,7 +258,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     pca_data = pca.fit_transform(filtered_df)
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(
-        x=filtered_df.index, 
+        x=np.arange(1, len(filtered_df) + 1), 
         y=detect_list, 
         mode='lines+markers',
         name='Detection Statistic',
@@ -283,7 +283,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     breach_indices = [i for i, val in enumerate(detect_list) if val > threshold]
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter3d(
-        x=filtered_df.index,
+        x=np.arange(1, len(filtered_df) + 1),
         y=pca_data[:, 0], 
         z=pca_data[:, 1],
         mode='lines+markers',
@@ -303,7 +303,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     #add highlight when threshold is breached
     if breach_indices:
         fig2.add_trace(go.Scatter3d(
-            x=filtered_df.index[breach_indices],
+            x=np.arange(1, len(filtered_df) + 1)[breach_indices],
             y=pca_data[breach_indices, 0],
             z=pca_data[breach_indices, 1],
             mode='markers',
