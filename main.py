@@ -173,14 +173,14 @@ def display_knn_experiment(pitcher):
     st.divider()
     st.subheader("Reliability Leaderboard Among Selected Pitchers", text_alignment = 'center')
 
+    knn_results['selected'] = knn_results['pitcher'] == selected_pitcher
     fig_bar = px.bar(
-        knn_results.sort_values('weighted_f1'),
-        x='weighted_f1',
-        y='pitcher',
-        orientation='h',
-        color='weighted_f1',
-        color_continuous_scale='RdYlGn',
-        range_color=[0.3, 1.0],
+    knn_results.sort_values('weighted_f1'),
+    x='weighted_f1',
+    y='pitcher',
+    orientation='h',
+    color='selected',
+    color_discrete_map={True: '#00CC96', False: '#636EFA'},
         hover_data=['pitch_types', 'best_k', 'best_metric', 'n_pitches', 'n_years'],
         labels={
             'weighted_f1': 'Weighted F1 Score',
@@ -215,14 +215,15 @@ def plot_kmeans_experiment(pitcher):
 
     kmeans_results = getKMeansResults()
 
+    kmeans_results['selected'] = kmeans_results['pitcher'] == pitcher
+
     fig_bar = px.bar(
     kmeans_results.sort_values('best_adj_rand'),
     x='best_adj_rand',
     y='pitcher',
     orientation='h',
-    color='best_adj_rand',
-    color_continuous_scale='RdYlGn',
-    range_color=[0.3, 1.0],
+    color='selected',
+    color_discrete_map={True: '#00CC96', False: '#636EFA'},
     hover_data=['pitch_types', 'best_k', 'best_adj_rand', 'n_pitches', 'n_years'],
     labels={
         'best_adj_rand': 'Best Adjusted Rand Index',
