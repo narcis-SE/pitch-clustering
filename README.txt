@@ -37,7 +37,8 @@ The app includes the following components:
     clustering approach.
 
   - Pitcher Similarity Tool: Uses PCA and KNN to identify pitchers with 
-    similar physical profiles.
+    similar physical profiles; displays a radar chart of selected pitcher 
+    and similar pitchers.
 
   - Online Change Detection: Applies a sequential multivariate change detection 
     algorithm to identify potential shifts in a pitcher's mechanics over time to assess
@@ -62,7 +63,7 @@ Step 1: Clone or download the project folder.
 
 Step 2: Install required dependencies:
 
-    pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib
+    pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib os
 
 Step 3: Ensure the following pre-generated CSV files are present in the
 project root directory:
@@ -75,17 +76,32 @@ project root directory:
     kmeans_folds.csv                   — K-Means forward-chain results
     change_detection.csv               — Data for change detection analysis
 
-Note: These CSV files are included in the submission package. To refresh them 
-or fetch data for additional pitchers, uncomment the data retrieval block at
-the top of main() in main.py and edit the pitchers list accordingly.
+Note: These CSV files are included in the submission package. 
 
 ---------------------------------------------------------------------------
-3. EXECUTION
+1. EXECUTION
 ---------------------------------------------------------------------------
 
 Step 1: Navigate to the project directory:
 
     cd pitch-clustering
+
+Step 2: Fetching Data: 
+
+The app expects the pre-generated CSV files above in the project root. To fetch data 
+for a new set of pitchers, or to retrieve more, uncomment the data retrieval block at 
+the top of main() in main.py and modify the `pitchers` and `keepCols` lists as needed. 
+Data is written to CSV files to avoid repeated API calls. 
+
+Assuming that you are in the project directory, run:
+
+```bash
+    python main.py
+```
+
+To generate the random_forest_predictions.csv, run the `pitcher_predict.ipynb` notebook. 
+To generate knn_folds.csv, knn_results.csv, kmeans_folds.csv, and kmeans_results.csv, 
+run the `experiement_2_3.ipynb` notebook. 
 
 Step 2: Launch the Streamlit app:
 
@@ -107,7 +123,7 @@ Step 4: Scroll through the app to explore each section:
     - Pitcher Stability: Select a pitcher to display a pitcher's physical profile
 
 ---------------------------------------------------------------------------
-4. DEMO VIDEO
+1. DEMO VIDEO
 ---------------------------------------------------------------------------
 
 
