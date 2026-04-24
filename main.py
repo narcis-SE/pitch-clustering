@@ -1,5 +1,5 @@
 from distro import name
-import requests
+# import requests
 import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture as GMM
@@ -11,7 +11,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 from changepoint_online import MDFocus, MDGaussian
-from plotly.subplots import make_subplots
+# from plotly.subplots import make_subplots
 import plotly.colors as pc
 import matplotlib.pyplot as plt
 
@@ -22,8 +22,7 @@ def analyze_pitcher_stability(df, pitcher_id, baseline_size=500, window_size=100
     pitcher_name = pitcher_df['player_name'].iloc[0]
     pitcher_df['game_date'] = pd.to_datetime(pitcher_df['game_date'])
     pitcher_df = pitcher_df.sort_values('game_date', kind='mergesort').reset_index(drop=True)
-    features = ['release_speed', 'release_spin_rate', 'pfx_x', 'pfx_z', 'release_pos_x', 'release_pos_z',
-                'release_extension']
+    features = ['release_speed', 'release_spin_rate', 'release_pos_x', 'release_pos_z', 'release_extension']
     clean_df = pitcher_df.dropna(subset=features).copy().reset_index(drop=True)
 
     #Scale and baseline
@@ -262,12 +261,25 @@ def display_knn_experiment(pitcher):
         else get_rdylgn_color(v) 
         for p, v in zip(sorted_results['pitcher'], sorted_results['weighted_f1'])
     ]
-    fig_bar['data'][0]['marker']['color'] = colors
+    # fig_bar['data'][0]['marker']['color'] = colors
+
+    fig_bar.update_traces(marker_color=colors)
+    fig_bar.update_traces(
+        hovertemplate="<br>".join([
+            "Pitcher: %{y}",
+            "Weighted F1 Score: %{x:.3f}",
+            "Pitch Types: %{customdata[0]}",
+            "Best k: %{customdata[1]}",
+            "Metric: %{customdata[2]}",
+            "# Pitches: %{customdata[3]}",
+            "Years of Data: %{customdata[4]}"
+        ])
+    )
     
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
-        line_color='white',
+        line_color='grey',
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
@@ -313,18 +325,30 @@ def plot_kmeans_experiment(pitcher):
         else get_rdylgn_color(v) 
         for p, v in zip(sorted_results['pitcher'], sorted_results['best_adj_rand'])
     ]
-    fig_bar['data'][0]['marker']['color'] = colors
+    # fig_bar['data'][0]['marker']['color'] = colors
+
+    fig_bar.update_traces(marker_color=colors)
+    fig_bar.update_traces(
+        hovertemplate="<br>".join([
+            "Pitcher: %{y}",
+            "Best Adjusted Rand Index: %{x:.3f}",
+            "Pitch Types: %{customdata[0]}",
+            "Best k: %{customdata[1]}",
+            "# Pitches: %{customdata[2]}",
+            "Years of Data: %{customdata[3]}",
+        ])
+    )
 
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
-        line_color='white',
+        line_color='grey',
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
     st.subheader("Pitch Separation Leaderboard Among Selected Pitchers", text_alignment = 'center')
     st.plotly_chart(fig_bar, width = 'stretch')
-    st.caption('Pitchers with higher adjusted rand index scores have more distinct and separable pitches than those with lower ones. Lower scores can indicate blending of pitch metrics over time or overlapping characteristics. This indistinctness is unfavorable for pitchers.')
+    st.caption('Pitchers with higher adjusted rand index scores have more distinct and separable pitches than those with lower ones. Lower scores can indicate blending of pitch metrics over time or overlapping characteristics. This indistinctness can be unfavorable for pitchers.')
 
 def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
     filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)]
@@ -447,7 +471,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25, use_game_seq
         showlegend=True
     )
 
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width = 'stretch')
     st.write("Game sequence is plotted on the x-axis, with the first two principal components of the pitch "
             "characteristics on the y and z axes. Points highlighted in red represent a statistically significant change "
              "in the pitch characteristics. Look for clusters "
@@ -457,7 +481,6 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25, use_game_seq
     #return detect_list, pca_data, pca.explained_variance_ratio_
 
 def main():
-    # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'lance lynn', 'sonny gray', 'aroldis chapman']
     # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
     # pitchers = [
     #             "Logan Gilbert", "Seth Lugo", "Logan Webb", "Zack Wheeler", "Aaron Nola",
@@ -639,7 +662,7 @@ def main():
                 showlegend=True,
                 height=500
             )
-            st.plotly_chart(fig_radar, use_container_width=True)
+            st.plotly_chart(fig_radar, width = 'stretch')
             st.caption(
                 "Radar chart shows physical metrics for the selected pitcher versus their most similar matches. "
                 "Overlapping profiles may indicate greater mechanical similarity."
@@ -675,27 +698,26 @@ def main():
         else:
             detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold, use_game_sequence=False)
     except Exception as e:
-        st.error(f"An error occurred during change detection")
-        st.info("This can happen if there are insufficient data points for the selected pitcher and pitch type. Try selecting a different pitcher, pitch type, or adjusting the threshold.")
+        st.warning(f"Please select a different pitcher, pitch type, or threshold.")
     
     # st.divider()
 
-
-    @st.cache_data
-    def getStabilityData():
-        return pd.read_csv('pitcher_data.csv')
+    # commenting this out as it uses the small test pitcher dataset. used getPitcherData() on line 693 instead.
+    # @st.cache_data
+    # def getStabilityData():
+    #     return pd.read_csv('pitcher_data.csv')
 
     st.header("Pitcher Stability", text_alignment='center')
     st.info(
         "This section models a pitcher's physical profile over time using a Gaussian Mixture Model trained on their baseline pitches. "
         "A declining drift score indicates the pitcher's mechanics are moving away from their established baseline, implying a decreased in performance.")
 
-    stability_data = getStabilityData()
+    stability_data = getPitcherData()
     pitcher_map = stability_data.drop_duplicates(subset='pitcher')[['player_name', 'pitcher']].sort_values(
         'player_name')
-    pitcher_names = pitcher_map['player_name'].tolist()
-    selected_stability_pitcher = st.selectbox('Select Pitcher', pitcher_names, key='stability_pitcher')
-    selected_pitcher_id = pitcher_map[pitcher_map['player_name'] == selected_stability_pitcher]['pitcher'].iloc[0]
+    # pitcher_names = pitcher_map['player_name'].tolist()
+    # selected_stability_pitcher = st.selectbox('Select Pitcher', pitcher_names, key='stability_pitcher')
+    selected_pitcher_id = pitcher_map[pitcher_map['player_name'] == selectPitcher]['pitcher'].iloc[0]
     analyze_pitcher_stability(stability_data, selected_pitcher_id)
 
 
