@@ -27,9 +27,9 @@ The app includes the following components:
     classifiers trained on physical metrics (release speed, spin rate,
     break, release position, extension, spin axis). Temporal forward-chain
     cross-validation is used to select the optimal number of neighbors k
-    and distance metric. Classification accuracy over time serves as a
-    proxy for pitcher consistency over time. Results are evaluated using weighted
-    F1 score to account for class imbalance across pitch types.
+    and distance metric and prevent data leakage. Classification accuracy over 
+    time serves as a proxy for pitcher consistency over time. Results are 
+    evaluated using weighted F1 score to account for class imbalance across pitch types.
 
   - K-Means Clustering Validation: Adjusted Rand Index (ARI) measures
     how well K-Means derived pitch clusters correspond to actual
