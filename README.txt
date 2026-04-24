@@ -100,7 +100,7 @@ Assuming that you are in the project directory and already have the CSV files de
 
 To generate the random_forest_predictions.csv, run the `pitcher_predict.ipynb` notebook. 
 To generate knn_folds.csv, knn_results.csv, kmeans_folds.csv, and kmeans_results.csv, 
-run the `experiement_2_3.ipynb` notebook. 
+run the `experiement_2_3.ipynb` notebook. To generate change_detection.csv run gen_change_detection_data.py. 
 
 Step 3: Launch the Streamlit app:
 
