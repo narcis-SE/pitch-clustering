@@ -62,7 +62,7 @@ Step 1: Clone or download the project folder.
 
 Step 2: Install required dependencies:
 
-    pip install streamlit pandas numpy scikit-learn plotly pybaseball changepoint-online 
+    pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib
 
 Step 3: Ensure the following pre-generated CSV files are present in the
 project root directory:
