@@ -261,7 +261,20 @@ def display_knn_experiment(pitcher):
         else get_rdylgn_color(v) 
         for p, v in zip(sorted_results['pitcher'], sorted_results['weighted_f1'])
     ]
-    fig_bar['data'][0]['marker']['color'] = colors
+    # fig_bar['data'][0]['marker']['color'] = colors
+
+    fig_bar.update_traces(marker_color=colors)
+    fig_bar.update_traces(
+        hovertemplate="<br>".join([
+            "Pitcher: %{y}",
+            "Weighted F1 Score: %{x:.3f}",
+            "Pitch Types: %{customdata[0]}",
+            "Best k: %{customdata[1]}",
+            "Metric: %{customdata[2]}",
+            "Pitches: %{customdata[3]}",
+            "Years: %{customdata[4]}"
+        ])
+    )
     
     fig_bar.add_vline(
         x=0.8,
@@ -312,7 +325,20 @@ def plot_kmeans_experiment(pitcher):
         else get_rdylgn_color(v) 
         for p, v in zip(sorted_results['pitcher'], sorted_results['best_adj_rand'])
     ]
-    fig_bar['data'][0]['marker']['color'] = colors
+    # fig_bar['data'][0]['marker']['color'] = colors
+
+    fig_bar.update_traces(marker_color=colors)
+    fig_bar.update_traces(
+        hovertemplate="<br>".join([
+            "Pitcher: %{y}",
+            "Adjusted Rand Index: %{x:.3f}",
+            "Pitch Types: %{customdata[0]}",
+            "Best k: %{customdata[1]}",
+            "Metric: %{customdata[2]}",
+            "Pitches: %{customdata[3]}",
+            "Years: %{customdata[4]}"
+        ])
+    )
 
     fig_bar.add_vline(
         x=0.8,
