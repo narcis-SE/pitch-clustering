@@ -65,8 +65,7 @@ Step 2: Install required dependencies:
 
     pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib os
 
-Step 3: Ensure the following pre-generated CSV files are present in the
-project root directory:
+Step 3: Ensure the following CSV files are present in the project root directory:
 
     pitcher_data_detailed_cleaned.csv  — Cleaned Statcast pitch data
     random_forest_predictions.csv      — RF model predictions and residuals
@@ -76,24 +75,24 @@ project root directory:
     kmeans_folds.csv                   — K-Means forward-chain results
     change_detection.csv               — Data for change detection analysis
 
-Note: These CSV files are included in the submission package. 
+Note: instructions for running the proper scripts to get these output files are provided in the next section.
 
 ---------------------------------------------------------------------------
 3. EXECUTION
 ---------------------------------------------------------------------------
 
-Step 1: Navigate to the project directory:
+Step 1: Navigate to the project directory (exact command may differ on your machine):
 
     cd pitch-clustering
 
-Step 2: Fetching Data: 
+Step 2: Getting Pitcher Data: 
 
-The app expects the pre-generated CSV files above in the project root. To fetch data 
+The app expects the CSV files above in the project root. To fetch data 
 for a new set of pitchers, or to retrieve more, uncomment the data retrieval block at 
-the top of main() in main.py and modify the `pitchers` and `keepCols` lists as needed. 
-Data is written to CSV files to avoid repeated API calls. 
+the top of main() in main.py (through the first @st.cache_data call) and modify the `pitchers` list as needed. 
+We do not recommend modifying the `keepCols` list. Data is written to CSV files to avoid repeated API calls. 
 
-Assuming that you are in the project directory, run:
+Assuming that you are in the project directory and already have the CSV files detailed above, run:
 
 ```bash
     python main.py
@@ -103,15 +102,17 @@ To generate the random_forest_predictions.csv, run the `pitcher_predict.ipynb` n
 To generate knn_folds.csv, knn_results.csv, kmeans_folds.csv, and kmeans_results.csv, 
 run the `experiement_2_3.ipynb` notebook. 
 
-Step 2: Launch the Streamlit app:
+Step 3: Launch the Streamlit app:
 
+```bash
     streamlit run main.py
+```
 
-Step 3: The app will open automatically in your default web browser.
+Step 4: The app will open automatically in your default web browser.
 Use the pitcher selector and year slider at the top of the page to
 filter all visualizations by pitcher and season.
 
-Step 4: Scroll through the app to explore each section:
+Step 5: Scroll through the app to explore each section:
 
     - EDA Visuals: Feature distributions and release position plots
     - Random Forest Residuals: Select a year >= 2022 to view test set results
