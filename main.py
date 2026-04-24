@@ -266,7 +266,7 @@ def display_knn_experiment(pitcher):
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
-        line_color='white',
+        line_color='grey',
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
@@ -317,7 +317,7 @@ def plot_kmeans_experiment(pitcher):
     fig_bar.add_vline(
         x=0.8,
         line_dash='dash',
-        line_color='white',
+        line_color='grey',
         annotation_text='0.8 threshold'
     )
     fig_bar.update_layout(title_x=0.5, title_xanchor='center')
