@@ -51,7 +51,7 @@ The app includes the following components:
     implying a decreased in performance.
 
 ---------------------------------------------------------------------------
-1. INSTALLATION
+2. INSTALLATION
 ---------------------------------------------------------------------------
 
 Requirements:
@@ -80,7 +80,7 @@ or fetch data for additional pitchers, uncomment the data retrieval block at
 the top of main() in main.py and edit the pitchers list accordingly.
 
 ---------------------------------------------------------------------------
-1. EXECUTION
+3. EXECUTION
 ---------------------------------------------------------------------------
 
 Step 1: Navigate to the project directory:
@@ -107,7 +107,7 @@ Step 4: Scroll through the app to explore each section:
     - Pitcher Stability: Select a pitcher to display a pitcher's physical profile
 
 ---------------------------------------------------------------------------
-1. DEMO VIDEO
+4. DEMO VIDEO
 ---------------------------------------------------------------------------
 
 
