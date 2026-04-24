@@ -37,7 +37,7 @@ The app includes the following components:
     clustering approach.
 
   - Pitcher Similarity Tool: Uses PCA and KNN to identify pitchers with 
-    similar physical profiles, providing a practical scouting application.
+    similar physical profiles.
 
   - Online Change Detection: Applies a sequential multivariate change detection 
     algorithm to identify potential shifts in a pitcher's mechanics over time to assess
@@ -51,7 +51,7 @@ The app includes the following components:
     implying a decreased in performance.
 
 ---------------------------------------------------------------------------
-2. INSTALLATION
+1. INSTALLATION
 ---------------------------------------------------------------------------
 
 Requirements:
