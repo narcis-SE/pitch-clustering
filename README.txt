@@ -52,7 +52,7 @@ The app includes the following components:
     implying a decreased in performance.
 
 ---------------------------------------------------------------------------
-1. INSTALLATION
+2. INSTALLATION
 ---------------------------------------------------------------------------
 
 Requirements:
@@ -79,7 +79,7 @@ project root directory:
 Note: These CSV files are included in the submission package. 
 
 ---------------------------------------------------------------------------
-1. EXECUTION
+3. EXECUTION
 ---------------------------------------------------------------------------
 
 Step 1: Navigate to the project directory:
@@ -123,7 +123,7 @@ Step 4: Scroll through the app to explore each section:
     - Pitcher Stability: Select a pitcher to display a pitcher's physical profile
 
 ---------------------------------------------------------------------------
-1. DEMO VIDEO
+4. DEMO VIDEO
 ---------------------------------------------------------------------------
 
 
