@@ -481,7 +481,6 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25, use_game_seq
     #return detect_list, pca_data, pca.explained_variance_ratio_
 
 def main():
-    # pitchers = ['justin verlander', 'max scherzer', 'chris sale', 'gerrit cole', 'corbin burnes', 'clayton kershaw', 'yu darvish', 'lance lynn', 'sonny gray', 'aroldis chapman']
     # keepCols = ["game_date", "player_name", "pitcher", "pitch_type", "pitch_name", "release_speed", "release_spin_rate", "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "spin_axis"]
     # pitchers = [
     #             "Logan Gilbert", "Seth Lugo", "Logan Webb", "Zack Wheeler", "Aaron Nola",
@@ -699,8 +698,7 @@ def main():
         else:
             detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold, use_game_sequence=False)
     except Exception as e:
-        st.error(f"An error occurred during change detection")
-        st.info("This can happen if there are insufficient data points for the selected pitcher and pitch type. Try selecting a different pitcher, pitch type, or adjusting the threshold.")
+        st.warning(f"Please select a different pitcher, pitch type, or threshold.")
     
     # st.divider()
 
