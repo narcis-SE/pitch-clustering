@@ -278,8 +278,9 @@ def plot_pitcher_trends(df, pitcher_name, pitch_type, column):
 
     st.plotly_chart(fig, width = 'stretch')
 
-def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
+def detect_changepoints(df, pitcher_name, pitch_type, threshold=25, use_game_sequence=True):
     filtered_df = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)].select_dtypes(include='number').copy()
+    game_dates = df[(df['player_name'] == pitcher_name) & (df['pitch_name'] == pitch_type)]['game_date']
     #standardize the data
     scaler = StandardScaler()
     filtered_df = pd.DataFrame(scaler.fit_transform(filtered_df), columns=filtered_df.columns, index=filtered_df.index)
@@ -298,7 +299,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     pca_data = pca.fit_transform(filtered_df)
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(
-        x=np.arange(1, len(filtered_df) + 1), 
+        x=np.arange(1, len(filtered_df) + 1) if use_game_sequence else game_dates,
         y=detect_list, 
         mode='lines+markers',
         name='Detection Statistic',
@@ -309,7 +310,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
 
     fig1.update_layout(
         title=f"Change Detection: {pitcher_name}, {pitch_type}",
-        xaxis_title="Game Sequence",
+        xaxis_title="Game Sequence" if use_game_sequence else "Game Date",
         yaxis_title="Statistic",
         hovermode="x unified"
     )
@@ -323,7 +324,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     breach_indices = [i for i, val in enumerate(detect_list) if val > threshold]
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter3d(
-        x=np.arange(1, len(filtered_df) + 1),
+        x=np.arange(1, len(filtered_df) + 1) if use_game_sequence else game_dates,
         y=pca_data[:, 0], 
         z=pca_data[:, 1],
         mode='lines+markers',
@@ -343,7 +344,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
     #add highlight when threshold is breached
     if breach_indices:
         fig2.add_trace(go.Scatter3d(
-            x=np.arange(1, len(filtered_df) + 1)[breach_indices],
+            x=game_dates.iloc[breach_indices],
             y=pca_data[breach_indices, 0],
             z=pca_data[breach_indices, 1],
             mode='markers',
@@ -356,9 +357,9 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25):
         ))
 
     fig2.update_layout(
-        title="Reduce Dimension Visualization",
+        title="Reduced Dimension Visualization",
         scene=dict(
-            xaxis_title='Game Sequence',
+            xaxis_title='Game Sequence' if use_game_sequence else 'Game Date',
             yaxis_title=f'1st PC: {pca.explained_variance_ratio_[0] * 100:.2f}% of variance',
             zaxis_title=f'2nd PC: {pca.explained_variance_ratio_[1] * 100:.2f}% of variance'
         ),
@@ -533,12 +534,17 @@ def main():
     CDPitchType = st.selectbox('Select Pitch Type', sorted(CDData[CDData['player_name'] == CDPitcher]['pitch_name'].unique()))
     exploreColumn = st.selectbox('Select Column to Explore', CDData.select_dtypes(include='number').columns.tolist(), index = 0)
     CDThreshold = st.slider('Select Change Detection Threshold', min_value = 5, max_value = 100, value = 25)
+    #add drop down yes or no option to use the game sequence or actual date for the x axis of the plots
+    use_game_sequence = st.selectbox('Use Game Sequence or Game Date for X-axis', ['Game Sequence', 'Game Date'], index = 1)
     
-    st.subheader('Exploratory Plot')
-    plot_pitcher_trends(CDData, CDPitcher, CDPitchType, exploreColumn)
-    st.subheader('Change Detection Analysis and PCA Visualization')
     try:
-        detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold)
+        st.subheader('Exploratory Plot')
+        plot_pitcher_trends(CDData, CDPitcher, CDPitchType, exploreColumn)
+        st.subheader('Change Detection Analysis and PCA Visualization')
+        if use_game_sequence == 'Game Sequence':
+            detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold, use_game_sequence=True)
+        else:
+            detect_changepoints(CDData, CDPitcher, CDPitchType, threshold=CDThreshold, use_game_sequence=False)
     except Exception as e:
         st.error(f"An error occurred during change detection")
         st.info("This can happen if there are insufficient data points for the selected pitcher and pitch type. Try selecting a different pitcher, pitch type, or adjusting the threshold.")
