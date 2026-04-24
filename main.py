@@ -271,8 +271,8 @@ def display_knn_experiment(pitcher):
             "Pitch Types: %{customdata[0]}",
             "Best k: %{customdata[1]}",
             "Metric: %{customdata[2]}",
-            "Pitches: %{customdata[3]}",
-            "Years: %{customdata[4]}"
+            "# Pitches: %{customdata[3]}",
+            "Years of Data: %{customdata[4]}"
         ])
     )
     
@@ -331,12 +331,11 @@ def plot_kmeans_experiment(pitcher):
     fig_bar.update_traces(
         hovertemplate="<br>".join([
             "Pitcher: %{y}",
-            "Adjusted Rand Index: %{x:.3f}",
+            "Best Adjusted Rand Index: %{x:.3f}",
             "Pitch Types: %{customdata[0]}",
             "Best k: %{customdata[1]}",
-            "Metric: %{customdata[2]}",
-            "Pitches: %{customdata[3]}",
-            "Years: %{customdata[4]}"
+            "# Pitches: %{customdata[2]}",
+            "Years of Data: %{customdata[3]}",
         ])
     )
 
