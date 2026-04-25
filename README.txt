@@ -56,14 +56,22 @@ The app includes the following components:
 ---------------------------------------------------------------------------
 
 Requirements:
-  - Python 3.9 or higher
-  - Anaconda
+  - Python 3.9 or higher and installed
+  - Anaconda and installed
 
 Step 1: Clone or download the project folder.
 
+Step 2: Create and activate a virtual environment.
+    1. Open the downloaded or cloned project in terminal
+
+    2. Create a virtual environment
+        python3 -m venv venv
+            source venv/bin/activate          # Mac/Linux
+            venv\Scripts\activate             # Windows
+
 Step 2: Install required dependencies:
 
-    pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib os
+    pip install distro pandas numpy scikit-learn pybaseball streamlit plotly changepoint_online matplotlib jupyter
 
 Step 3: Ensure the following CSV files are present in the project root directory prior to running the streamlit app:
 
@@ -81,7 +89,7 @@ Note: instructions for running the proper scripts to get these output files are 
 3. EXECUTION
 ---------------------------------------------------------------------------
 
-Step 1: Navigate to the project directory (exact command may differ on your machine):
+Step 1: Navigate to the project directory if you are not there already  (exact command may differ on your machine):
 
     cd pitch-clustering
 
@@ -99,9 +107,20 @@ Run the following command (or run using your default python execution method):
 
 AND run all cells in eda.ipynb
 
-To generate random_forest_predictions.csv, run all cells in the `pitcher_predict.ipynb` notebook. 
-To generate knn_folds.csv, knn_results.csv, kmeans_folds.csv, and kmeans_results.csv, 
-run all cells in the `experiement_2_3.ipynb` notebook. To generate change_detection.csv run gen_change_detection_data.py. 
+  jupyter nbconvert --to notebook --execute eda.ipynb
+  jupyter nbconvert --to notebook --execute pitcher_prediction.ipynb
+  jupyter nbconvert --to notebook --execute experiment_2_3.ipynb
+  python gen_change_detection_data.py
+
+This will generate the following files needed to run the app:
+  - random_forest_predictions.csv
+  - knn_folds.csv
+  - knn_results.csv
+  - kmeans_folds.csv
+  - kmeans_results.csv
+  - change_detection.csv
+
+Note: These notebooks may take several minutes to run.
 
 Step 3: Launch the Streamlit app using the following command:
 
