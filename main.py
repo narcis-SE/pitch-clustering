@@ -138,7 +138,7 @@ def display_knn_experiment(pitcher):
     col1, col2, col3 = st.columns(3)
     col1.metric("Avg. Weighted F1", f"{knn_results['weighted_f1'].mean():.3f}")
     col2.metric("Top Performer", knn_results.iloc[0]['pitcher'], f"{knn_results.iloc[0]['weighted_f1']:.3f}")
-    col3.metric("Total Pitchers Analyzed", len(knn_results))
+    col3.metric("Total Pitchers Analyzed", len(knn_results)+1)
 
     st.divider()
 
@@ -178,7 +178,7 @@ def display_knn_experiment(pitcher):
             st.info(f1_scores(pitcher_data['weighted_f1']))
         with c3:
             rank = knn_results['weighted_f1'].rank(ascending=False).loc[knn_results['pitcher'] == selected_pitcher].iloc[0]
-            st.metric("Leaderboard Rank", f"{int(rank)} / {len(knn_results)}")
+            st.metric("Leaderboard Rank", f"{int(rank)} / {len(knn_results)+1}")
             n_pitch_types = len(pitcher_data['pitch_types'].split(','))
             st.metric("# Pitch Types", n_pitch_types)
 
