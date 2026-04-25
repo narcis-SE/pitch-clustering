@@ -634,7 +634,7 @@ def main():
             "The third plot shows the trajectory of the pitch characteristics in PCA space, with points colored by the change detection statistic "
             "to visually identify when significant shifts in mechanics may have occurred.")
     
-    CDPitcher = st.selectbox('Select Pitcher', sorted(CDData['player_name'].unique()), index = 6)
+    CDPitcher = st.selectbox('Select Pitcher', sorted(CDData['player_name'].unique()), index = 0)
     CDPitchType = st.selectbox('Select Pitch Type', sorted(CDData[CDData['player_name'] == CDPitcher]['pitch_name'].unique()))
     exploreColumn = st.selectbox('Select Column to Explore', CDData.select_dtypes(include='number').columns.tolist(), index = 0)
     CDThreshold = st.slider('Select Change Detection Threshold', min_value = 5, max_value = 100, value = 25)

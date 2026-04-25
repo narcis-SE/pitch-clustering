@@ -1,4 +1,3 @@
-# pitch-clustering
 ===========================================================================
 MLB PITCH CLUSTERING — USER GUIDE
 ===========================================================================
@@ -57,8 +56,18 @@ The app includes the following components:
 ---------------------------------------------------------------------------
 
 Requirements:
-  - Python 3.9 or higher and installed
-  - Anaconda and installed
+  - Python 3.11 or higher and installed
+
+Mac:
+  Install Homebrew if you don't have it:
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  Then install Python 3.11:
+    brew install python@3.11
+
+Windows:
+  Download and install Python 3.11 from https://www.python.org/downloads/
+  During installation, check "Add Python to PATH"
 
 Step 1: Clone or download the project folder.
 
@@ -100,20 +109,23 @@ The app expects the CSV files above in the project root. To fetch data
 for the current set of pitchers used in each experiment, run get_data.py and all cells in eda.ipynb. 
 We do not recommend modifying the `keepCols` or `pitchers` lists for the purposes of this demonstration. Data is written to CSV files to avoid repeated API calls. 
 
-Run the following command (or run using your default python execution method):
+Run the following commands in order. Each must complete before starting the next.
 
-```bash
     python get_data.py
-```
 
-AND run all cells in eda.ipynb
+    jupyter nbconvert --to notebook --execute eda.ipynb
+    jupyter nbconvert --to notebook --execute pitcher_prediction.ipynb
+    jupyter nbconvert --to notebook --execute experiment_2_3.ipynb
 
-```bash
-  jupyter nbconvert --to notebook --execute eda.ipynb
-  jupyter nbconvert --to notebook --execute pitcher_prediction.ipynb
-  jupyter nbconvert --to notebook --execute experiment_2_3.ipynb
-  python gen_change_detection_data.py
-```
+    python gen_change_detection_data.py
+
+This will generate the following CSV files required to run the app:
+  - random_forest_predictions.csv
+  - knn_folds.csv
+  - knn_results.csv
+  - kmeans_folds.csv
+  - kmeans_results.csv
+  - change_detection.csv
 
 This will generate the following files needed to run the app:
   - random_forest_predictions.csv
