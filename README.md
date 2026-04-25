@@ -108,10 +108,12 @@ Run the following command (or run using your default python execution method):
 
 AND run all cells in eda.ipynb
 
+```bash
   jupyter nbconvert --to notebook --execute eda.ipynb
   jupyter nbconvert --to notebook --execute pitcher_prediction.ipynb
   jupyter nbconvert --to notebook --execute experiment_2_3.ipynb
   python gen_change_detection_data.py
+```
 
 This will generate the following files needed to run the app:
   - random_forest_predictions.csv
