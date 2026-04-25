@@ -24,7 +24,7 @@ pitchers = [
             "Garrett Crochet", "Yu Darvish", "mason miller", "Ryan Pepiot", "Chris Sale",
             "Reid Detmers", "Tyler Glasnow", "Ranger Suárez", "Paul Skenes", "Yency Almonte",
             "Taijuan Walker", "Gerrit Cole", "Triston McKenzie", "Walker Buehler", "Jacob deGrom",
-            "Justin Verlander", "Max Scherzer", "Jacob Bird", "Kyle Gibson", "Miles Mikolas"
+            "Justin Verlander", "Max Scherzer", "Jake Bird", "Kyle Gibson", "Miles Mikolas"
         ]
 keepCols = [
             "pitch_type", "game_date", "release_speed", "release_pos_x", "release_pos_z",
