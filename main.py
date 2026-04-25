@@ -662,7 +662,8 @@ def main():
     st.header("Pitcher Stability", text_alignment='center')
     st.info(
         "This section models a pitcher's physical profile over time using a Gaussian Mixture Model trained on their baseline pitches. "
-        "A declining drift score indicates the pitcher's mechanics are moving away from their established baseline, implying a decreased in performance.")
+        "A declining drift score indicates the pitcher's mechanics are moving away from their established baseline, implying a decreased in performance. "
+        "Select pitcher data by changing the selected pitcher at the very top of the page under 'MLB Pitch Clustering'.")
 
     stability_data = getPitcherData()
     pitcher_map = stability_data.drop_duplicates(subset='pitcher')[['player_name', 'pitcher']].sort_values(
