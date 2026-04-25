@@ -88,27 +88,28 @@ Step 1: Navigate to the project directory (exact command may differ on your mach
 Step 2: Getting Pitcher Data: 
 
 The app expects the CSV files above in the project root. To fetch data 
-for a new set of pitchers, or to retrieve more, uncomment the data retrieval block at 
-the top of main() in main.py (through the first @st.cache_data call) and modify the `pitchers` list as needed. 
-We do not recommend modifying the `keepCols` list. Data is written to CSV files to avoid repeated API calls. 
+for the current set of pitchers used in each experiment, run get_data.py and all cells in eda.ipynb. 
+We do not recommend modifying the `keepCols` or `pitchers` lists for the purposes of this demonstration. Data is written to CSV files to avoid repeated API calls. 
 
-Run the following command with the above section of code uncommented:
+Run the following command (or run using your default python execution method):
 
 ```bash
-    python main.py
+    python get_data.py
 ```
+
+AND run all cells in eda.ipynb
 
 To generate random_forest_predictions.csv, run all cells in the `pitcher_predict.ipynb` notebook. 
 To generate knn_folds.csv, knn_results.csv, kmeans_folds.csv, and kmeans_results.csv, 
 run all cells in the `experiement_2_3.ipynb` notebook. To generate change_detection.csv run gen_change_detection_data.py. 
 
-Step 3: Launch the Streamlit app:
+Step 3: Launch the Streamlit app using the following command:
 
 ```bash
     streamlit run main.py
 ```
 
-Step 4: The app will open automatically in your default web browser.
+The app will open automatically in your default web browser.
 Use the pitcher selector and year slider at the top of the page to
 filter visualizations by pitcher and season. Note that some sections come with unique selectors that only apply to it.
 
@@ -122,10 +123,5 @@ Step 5: Scroll through the app to explore each section:
     - Change Detection: Select a pitcher, pitch type, and threshold to run
       the online change detection algorithm
     - Pitcher Stability: Select a pitcher to display a pitcher's physical profile
-
----------------------------------------------------------------------------
-4. DEMO VIDEO
----------------------------------------------------------------------------
-
 
 ===========================================================================
