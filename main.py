@@ -65,14 +65,6 @@ def analyze_pitcher_stability(df, pitcher_id, baseline_size=500, window_size=100
     st.pyplot(fig)
     plt.close(fig)
 
-def get_player_id(first_name: str, last_name: str) -> int:
-    '''Get the MLBAM player ID for a given player name. Returns the player ID as an int.'''
-    player = playerid_lookup(last_name, first_name)
-    if not player.empty:
-        return player['key_mlbam'].values[0]
-    else:
-        raise ValueError(f'Player {first_name} {last_name} not found.')
-
 def find_similar_pitchers(data, target_pitcher, target_year, n_components=3):
     ''''Find similar pitchers based on pitch features.'''
 
