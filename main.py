@@ -178,7 +178,7 @@ def display_knn_experiment(pitcher):
             st.info(f1_scores(pitcher_data['weighted_f1']))
         with c3:
             rank = knn_results['weighted_f1'].rank(ascending=False).loc[knn_results['pitcher'] == selected_pitcher].iloc[0]
-            st.metric("Leaderboard Rank", f"{int(rank)} / {len(knn_results)+1}")
+            st.metric("Leaderboard Rank", f"{int(rank)} / {len(knn_results)}")
             n_pitch_types = len(pitcher_data['pitch_types'].split(','))
             st.metric("# Pitch Types", n_pitch_types)
 
@@ -413,7 +413,7 @@ def detect_changepoints(df, pitcher_name, pitch_type, threshold=25, use_game_seq
     breach_indices = [i for i, val in enumerate(detect_list) if val > threshold]
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter3d(
-        x=np.arange(1, len(filtered_df)) if use_game_sequence else game_dates,
+        x=np.arange(1, len(filtered_df)+1) if use_game_sequence else game_dates,
         y=pca_data[:, 0], 
         z=pca_data[:, 1],
         mode='lines+markers',
