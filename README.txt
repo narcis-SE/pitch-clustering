@@ -58,17 +58,6 @@ The app includes the following components:
 Requirements:
   - Python 3.11 or higher and installed
 
-Mac:
-  Install Homebrew if you don't have it:
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-  Then install Python 3.11:
-    brew install python@3.11
-
-Windows:
-  Download and install Python 3.11 from https://www.python.org/downloads/
-  During installation, check "Add Python to PATH"
-
 Step 1: Clone or download the project folder.
 
 Step 2: Create and activate a virtual environment.
